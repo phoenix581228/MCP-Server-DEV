@@ -24,7 +24,10 @@ MCP-Server-DEV/
 ├── .git
 ├── perplexity-mcp-custom
 ├── scripts
+├── zen-mcp-config
 ├── zen-mcp-server
+├── BRANCHING_STRATEGY.md
+├── GIT_HISTORY.md
 ├── MILESTONES.md
 ├── PROJECT_STRUCTURE.md
 ├── README.md
@@ -306,6 +309,7 @@ MCP-Server-DEV/
 ./utils/security_config.py
 ./utils/storage_backend.py
 ./utils/token_utils.py
+./zen-mcp-config
 ```
 
 #### 統計資訊

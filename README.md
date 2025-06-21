@@ -18,14 +18,15 @@ MCP-Server-DEV/
 │   ├── src/                   # TypeScript 源碼
 │   ├── tests/                 # 測試套件
 │   └── docs/                  # 技術文檔
-├── zen-mcp-server/            # Zen MCP Server (多模型 AI 協作)
-│   ├── tools/                 # MCP 工具實作
-│   ├── providers/             # AI 提供者整合
-│   └── tests/                 # 測試框架
+├── zen-mcp-config/            # Zen MCP Server 部署配置
+│   ├── .env.example          # 環境變數範例
+│   ├── claude_config_example.json  # Claude 配置範例
+│   └── deployment.md         # 部署指南
 └── scripts/                   # 專案管理工具
     ├── generate-tree.sh       # 生成專案結構
     ├── git-history-graph.sh   # Git 歷史視覺化
-    └── project-navigator.sh   # 互動式導航器
+    ├── project-navigator.sh   # 互動式導航器
+    └── setup-git-hooks.sh     # Git hooks 設定
 ```
 
 ## 專案管理工具
@@ -64,6 +65,19 @@ MCP-Server-DEV/
 - [可行性研究報告](./perplexity-mcp-custom/docs/FEASIBILITY_STUDY.md)
 - [開發計劃](./perplexity-mcp-custom/docs/DEVELOPMENT_PLAN.md)
 - [技術規格書](./perplexity-mcp-custom/docs/TECHNICAL_SPEC.md)
+
+### 2. zen-mcp-config
+[Zen MCP Server](https://github.com/BeehiveInnovations/zen-mcp-server) 的部署配置和設定檔。
+
+**包含**：
+- 環境變數配置範例
+- Claude 整合設定
+- 部署指南
+- 安全的 API 金鑰管理
+
+**文檔**：
+- [配置說明](./zen-mcp-config/README.md)
+- [部署指南](./zen-mcp-config/deployment.md)
 
 ## 開發標準
 
