@@ -22,6 +22,11 @@ MCP-Server-DEV/
 │   ├── .env.example          # 環境變數範例
 │   ├── claude_config_example.json  # Claude 配置範例
 │   └── deployment.md         # 部署指南
+├── openmemory-mcp-config/     # OpenMemory MCP Server 部署配置
+│   ├── .env.example          # 環境變數範例
+│   ├── docker-compose.yml    # Docker Compose 配置
+│   ├── deployment.md         # 部署指南
+│   └── troubleshooting.md    # 故障排除指南
 └── scripts/                   # 專案管理工具
     ├── generate-tree.sh       # 生成專案結構
     ├── git-history-graph.sh   # Git 歷史視覺化
@@ -78,6 +83,20 @@ MCP-Server-DEV/
 **文檔**：
 - [配置說明](./zen-mcp-config/README.md)
 - [部署指南](./zen-mcp-config/deployment.md)
+
+### 3. openmemory-mcp-config
+[OpenMemory MCP Server](https://github.com/mem0ai/mem0) 的部署配置和設定檔。
+
+**特點**：
+- 本地優先的 AI 記憶體管理
+- Docker 多服務架構
+- SSE 協議支援
+- 跨工具記憶體共享
+
+**文檔**：
+- [配置說明](./openmemory-mcp-config/README.md)
+- [部署指南](./openmemory-mcp-config/deployment.md)
+- [故障排除](./openmemory-mcp-config/troubleshooting.md)
 
 ## 開發標準
 

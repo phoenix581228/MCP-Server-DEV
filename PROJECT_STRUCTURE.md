@@ -22,6 +22,7 @@ MCP-Server-DEV/
 ├── .
 ├── ..
 ├── .git
+├── openmemory-mcp-config
 ├── perplexity-mcp-custom
 ├── scripts
 ├── zen-mcp-config
