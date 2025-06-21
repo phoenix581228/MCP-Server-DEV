@@ -9,6 +9,7 @@
 - 🔧 [專案導航器](./scripts/project-navigator.sh) - 互動式專案導航工具
 - 🌿 [分支管理策略](./BRANCHING_STRATEGY.md) - Git 分支工作流程
 - 📈 [Git 歷史報告](./GIT_HISTORY.md) - 提交歷史和統計
+- 🔬 [MCP Server 整合研究報告](./RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md) - 四大 MCP Server vs 原生功能深度分析
 
 ## 專案結構概覽
 
