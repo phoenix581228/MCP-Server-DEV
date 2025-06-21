@@ -2,6 +2,53 @@
 
 這個目錄包含自製 MCP (Model Context Protocol) Server 的開發專案。
 
+## 快速導航
+
+- 📁 [專案結構視覺化](./PROJECT_STRUCTURE.md) - 查看完整的專案目錄結構
+- 📊 [專案里程碑](./MILESTONES.md) - 開發進度和成就記錄
+- 🔧 [專案導航器](./scripts/project-navigator.sh) - 互動式專案導航工具
+- 🌿 [分支管理策略](./BRANCHING_STRATEGY.md) - Git 分支工作流程
+- 📈 [Git 歷史報告](./GIT_HISTORY.md) - 提交歷史和統計
+
+## 專案結構概覽
+
+```
+MCP-Server-DEV/
+├── perplexity-mcp-custom/     # Perplexity MCP Server 實作
+│   ├── src/                   # TypeScript 源碼
+│   ├── tests/                 # 測試套件
+│   └── docs/                  # 技術文檔
+├── zen-mcp-server/            # Zen MCP Server (多模型 AI 協作)
+│   ├── tools/                 # MCP 工具實作
+│   ├── providers/             # AI 提供者整合
+│   └── tests/                 # 測試框架
+└── scripts/                   # 專案管理工具
+    ├── generate-tree.sh       # 生成專案結構
+    ├── git-history-graph.sh   # Git 歷史視覺化
+    └── project-navigator.sh   # 互動式導航器
+```
+
+## 專案管理工具
+
+### 1. 專案結構生成器
+```bash
+./scripts/generate-tree.sh
+```
+自動生成並更新 PROJECT_STRUCTURE.md 文件，展示完整的專案目錄結構。
+
+### 2. Git 歷史視覺化
+```bash
+./scripts/git-history-graph.sh -a  # 顯示所有資訊
+./scripts/git-history-graph.sh -g  # 生成報告
+```
+視覺化展示 Git 提交歷史和專案統計。
+
+### 3. 專案導航器
+```bash
+./scripts/project-navigator.sh
+```
+互動式的專案導航工具，快速瀏覽和管理子專案。
+
 ## 專案列表
 
 ### 1. perplexity-mcp-custom
