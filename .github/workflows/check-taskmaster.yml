@@ -1,0 +1,77 @@
+name: Check Task Master AI Status
+
+on:
+  schedule:
+    # 每天早上 9 點執行（UTC 時間 1 點）
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-taskmaster:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Check Task Master AI version
+      id: check-version
+      run: |
+        LATEST_VERSION=$(npm view task-master-ai version)
+        echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+        echo "Latest version: $LATEST_VERSION"
+        
+    - name: Test Task Master AI functionality
+      id: test-functionality
+      continue-on-error: true
+      run: |
+        # 安裝並測試
+        npx -y task-master-ai --version 2>&1 | head -20 > test-output.txt
+        
+        # 檢查是否還有無限循環問題
+        if grep -q "No configuration file found in project" test-output.txt; then
+          echo "status=failed" >> $GITHUB_OUTPUT
+          echo "❌ Task Master AI still has the infinite loop bug"
+          exit 1
+        else
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Task Master AI appears to be working"
+        fi
+        
+    - name: Update status file
+      if: steps.test-functionality.outputs.status == 'success'
+      run: |
+        DATE=$(date +%Y-%m-%d)
+        sed -i "s/## 當前狀態：❌ 無法使用/## 當前狀態：✅ 可以使用/" taskmaster-status.md
+        sed -i "s/最後檢查日期：.*/最後檢查日期：$DATE/" taskmaster-status.md
+        
+    - name: Create issue if fixed
+      if: steps.test-functionality.outputs.status == 'success'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🎉 Task Master AI 已修復！',
+            body: `好消息！Task Master AI MCP Server 的無限循環 bug 似乎已經修復。
+            
+            版本：${{ steps.check-version.outputs.latest_version }}
+            
+            請進行手動測試確認功能正常。`,
+            labels: ['bug-fixed', 'taskmaster']
+          });
+          
+    - name: Commit changes
+      if: steps.test-functionality.outputs.status == 'success'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add taskmaster-status.md
+        git commit -m "🤖 Update Task Master AI status - Bug fixed!"
+        git push

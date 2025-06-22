@@ -11,6 +11,8 @@
 - ✅ **TypeScript 實作** - 型別安全，易於維護
 - ✅ **支援所有 Perplexity 模型** - sonar、sonar-pro、sonar-deep-research
 - ✅ **深度研究工具** - 專門的深度研究功能
+- 🆕 **支援 HTTP/SSE Transport** - 原生支援 WebUI，無需 MCP Bridge
+- 🆕 **雙模式運行** - stdio (桌面) 和 HTTP (WebUI) 模式
 
 ## 🚀 快速開始
 
@@ -59,6 +61,43 @@ claude mcp add perplexity "npx @tzuchi/perplexity-mcp-custom"
 ```bash
 claude mcp add perplexity "npx @tzuchi/perplexity-mcp-custom" -g
 ```
+
+## 🌐 HTTP/SSE Transport 模式
+
+### 啟動 HTTP 模式
+
+```bash
+# 預設 port 3000
+perplexity-mcp --http
+
+# 指定 port
+perplexity-mcp --http --port 8080
+
+# 使用環境變數
+MCP_TRANSPORT=http MCP_PORT=8080 perplexity-mcp
+```
+
+### HTTP 端點
+
+- `POST /mcp` - JSON-RPC 請求
+- `GET /mcp` - SSE 串流連接  
+- `DELETE /mcp` - 終止 session
+- `GET /health` - 健康檢查
+
+### 安全配置
+
+```bash
+# CORS 設定
+PERPLEXITY_CORS_ORIGINS=http://localhost:5173,https://myapp.com
+
+# Bearer Token 認證
+PERPLEXITY_BEARER_TOKEN=your-secret-token
+
+# Rate Limiting (每分鐘最大請求數)
+PERPLEXITY_RATE_LIMIT=60
+```
+
+詳細說明請參考 [HTTP Transport 文件](docs/HTTP_TRANSPORT.md)。
 
 ## 📖 使用方式
 

@@ -5,6 +5,18 @@ export interface ServerConfig {
   debug?: boolean;
 }
 
+export type TransportType = 'stdio' | 'http';
+
+export interface TransportOptions {
+  type: TransportType;
+  port?: number;
+  host?: string;
+}
+
+export interface ServerOptions extends ServerConfig {
+  transport?: TransportOptions;
+}
+
 export type PerplexityModel = 'sonar' | 'sonar-pro' | 'sonar-reasoning' | 'sonar-reasoning-pro' | 'sonar-deep-research';
 
 export interface SearchOptions {

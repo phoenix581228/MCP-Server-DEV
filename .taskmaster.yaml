@@ -1,0 +1,45 @@
+# Task Master AI Configuration
+name: MCP-Server-DEV
+projectType: mcp-development
+preferredLanguage: typescript
+
+# Model Configuration
+models:
+  main: xinference/qwen3
+  research: xinference/qwen3
+  fallback: xinference/qwen3
+
+# Development Settings
+workstyle:
+  - clean-code
+  - test-driven
+  - documentation-focused
+
+# Task Settings
+taskSettings:
+  defaultPriority: medium
+  defaultTag: main
+  maxConcurrentTasks: 10
+  autoCreateSubtasks: true
+  defaultSubtaskCount: 5
+
+# Project-specific patterns
+codePatterns:
+  - pattern: "*.ts"
+    template: "typescript-strict"
+  - pattern: "*.js" 
+    template: "javascript-es6"
+
+# Ignore patterns
+ignore:
+  - node_modules
+  - dist
+  - build
+  - .git
+  - "*.log"
+  
+# AI Model Provider Settings
+providerSettings:
+  xinference:
+    baseUrl: http://localhost:9997
+    model: qwen3

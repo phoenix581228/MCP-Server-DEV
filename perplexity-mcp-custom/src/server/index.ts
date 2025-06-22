@@ -9,16 +9,23 @@ import {
   EmbeddedResource,
 } from '@modelcontextprotocol/sdk/types.js';
 
-import { ServerConfig, SearchResult } from '../types/index.js';
+import { ServerConfig, SearchResult, TransportOptions } from '../types/index.js';
 import { PerplexityAPIClient } from '../api/client.js';
 import { LRUCache } from '../utils/cache.js';
-import { SEARCH_TOOL_SCHEMA, PRO_SEARCH_TOOL_SCHEMA, DEEP_RESEARCH_TOOL_SCHEMA } from '../tools/schemas.js';
+import { 
+  SEARCH_TOOL_SCHEMA, 
+  PRO_SEARCH_TOOL_SCHEMA, 
+  DEEP_RESEARCH_TOOL_SCHEMA,
+  REASONING_TOOL_SCHEMA 
+} from '../tools/schemas.js';
+import { PerplexityHttpServer, HttpServerConfig } from './http.js';
 
 export class PerplexityMCPServer {
   private server: Server;
   private apiClient: PerplexityAPIClient;
   private cache: LRUCache<string, SearchResult>;
   private config: ServerConfig;
+  private httpServer?: PerplexityHttpServer;
 
   constructor(config: ServerConfig) {
     this.config = config;
@@ -191,6 +198,33 @@ export class PerplexityMCPServer {
             additionalProperties: false,
           },
         },
+        {
+          name: 'perplexity_reasoning',
+          description: 'Complex reasoning and step-by-step analysis using Perplexity reasoning models',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: '推理查詢字串',
+                minLength: 1,
+                maxLength: 1000,
+              },
+              model: {
+                type: 'string',
+                enum: ['sonar-reasoning', 'sonar-reasoning-pro'],
+                default: 'sonar-reasoning',
+                description: 'Reasoning model to use',
+              },
+              context: {
+                type: 'string',
+                description: '額外的上下文資訊',
+              },
+            },
+            required: ['query'],
+            additionalProperties: false,
+          },
+        },
       ];
 
       return { tools };
@@ -208,6 +242,8 @@ export class PerplexityMCPServer {
             return await this.handleProSearch(args);
           case 'perplexity_deep_research':
             return await this.handleDeepResearch(args);
+          case 'perplexity_reasoning':
+            return await this.handleReasoning(args);
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -303,6 +339,41 @@ export class PerplexityMCPServer {
     return this.formatSearchResult(result, false);
   }
 
+  private async handleReasoning(args: unknown): Promise<{ content: Array<TextContent | ImageContent | EmbeddedResource> }> {
+    // Validate input
+    const input = REASONING_TOOL_SCHEMA.parse(args);
+    
+    // Create cache key
+    const cacheKey = `reasoning_${JSON.stringify(input)}`;
+    
+    // Check cache
+    const cached = this.cache.get(cacheKey);
+    if (cached) {
+      return this.formatSearchResult(cached, true);
+    }
+
+    // Build query with context if provided
+    let fullQuery = input.query;
+    if (input.context) {
+      fullQuery = `Context: ${input.context}\n\nQuery: ${input.query}`;
+    }
+
+    // Make API call using reasoning model
+    const result = await this.apiClient.search(
+      fullQuery,
+      input.model,
+      {
+        return_citations: true,
+        return_related_questions: true,
+      },
+    );
+
+    // Store in cache
+    this.cache.set(cacheKey, result);
+
+    return this.formatSearchResult(result, false);
+  }
+
   private formatSearchResult(
     result: SearchResult,
     fromCache: boolean,
@@ -356,12 +427,61 @@ export class PerplexityMCPServer {
     return { content };
   }
 
-  async start(): Promise<void> {
+  getServer(): Server {
+    return this.server;
+  }
+
+  async start(transportOptions?: TransportOptions): Promise<void> {
+    const transport = transportOptions || { type: 'stdio' };
+    
+    switch (transport.type) {
+      case 'stdio':
+        await this.startStdio();
+        break;
+        
+      case 'http':
+        await this.startHttp(transport.port || 3000, transport.host);
+        break;
+        
+      default:
+        throw new Error(`Unknown transport type: ${transport.type}`);
+    }
+  }
+
+  private async startStdio(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     
     if (this.config.debug) {
-      console.error('Perplexity MCP Server started');
+      console.error('Perplexity MCP Server started (stdio mode)');
+    }
+  }
+
+  private async startHttp(port: number, host?: string): Promise<void> {
+    const httpConfig: HttpServerConfig = {
+      port,
+      host,
+      security: {
+        corsOrigins: process.env.PERPLEXITY_CORS_ORIGINS?.split(','),
+        bearerToken: process.env.PERPLEXITY_BEARER_TOKEN,
+        rateLimit: process.env.PERPLEXITY_RATE_LIMIT ? {
+          windowMs: 60000, // 1 minute
+          maxRequests: parseInt(process.env.PERPLEXITY_RATE_LIMIT, 10),
+        } : undefined,
+      },
+    };
+    
+    this.httpServer = new PerplexityHttpServer(this, httpConfig);
+    await this.httpServer.start();
+    
+    if (this.config.debug) {
+      console.error(`Perplexity MCP Server started (HTTP mode on port ${port})`);
+    }
+  }
+
+  async stop(): Promise<void> {
+    if (this.httpServer) {
+      await this.httpServer.stop();
     }
   }
 }
