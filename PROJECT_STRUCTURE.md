@@ -26,6 +26,7 @@ MCP-Server-DEV/
 ├── perplexity-mcp-custom
 ├── scripts
 ├── serena-mcp-server
+├── taskmaster-mcp-config
 ├── zen-mcp-config
 ├── zen-mcp-server
 ├── .DS_Store

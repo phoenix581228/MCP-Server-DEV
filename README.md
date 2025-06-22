@@ -10,6 +10,7 @@
 - 🌿 [分支管理策略](./BRANCHING_STRATEGY.md) - Git 分支工作流程
 - 📈 [Git 歷史報告](./GIT_HISTORY.md) - 提交歷史和統計
 - 🔬 [MCP Server 整合研究報告](./RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md) - 四大 MCP Server vs 原生功能深度分析
+- 🚀 [六大 MCP Server 協同生態系統研究報告](./RESEARCH_REPORT_MCP_SERVERS_2025_LATEST.md) - 最新深度研究（含 Task Master）
 
 ## 專案結構概覽
 
@@ -34,6 +35,11 @@ MCP-Server-DEV/
 │   ├── install.sh             # 安裝腳本
 │   ├── run-serena.sh          # 執行腳本
 │   └── test-connection.sh     # 測試腳本
+├── taskmaster-mcp-config/     # Task Master MCP Server 配置
+│   ├── .env.example          # 環境變數範例
+│   ├── deployment.md         # 部署指南
+│   ├── integration.md        # 整合指南
+│   └── docs/                 # 詳細文檔
 └── scripts/                   # 專案管理工具
     ├── generate-tree.sh       # 生成專案結構
     ├── git-history-graph.sh   # Git 歷史視覺化
@@ -120,6 +126,23 @@ MCP-Server-DEV/
 - [配置指南](./serena-mcp-server/docs/CONFIGURATION.md)
 - [工具參考](./serena-mcp-server/docs/TOOLS_REFERENCE.md)
 - [整合指南](./serena-mcp-server/docs/INTEGRATION.md)
+
+### 5. taskmaster-mcp-config
+[Claude Task Master](https://github.com/eyaltoledano/claude-task-master) 的部署配置，提供 AI 驅動的任務管理系統。
+
+**特點**：
+- ✅ 智能任務規劃和管理
+- ✅ 從 PRD 自動生成任務
+- ✅ 多 AI 模型協作（Claude、GPT、Gemini、Perplexity）
+- ✅ 任務依賴和進度追蹤
+
+**文檔**：
+- [配置說明](./taskmaster-mcp-config/README.md)
+- [部署指南](./taskmaster-mcp-config/deployment.md)
+- [整合指南](./taskmaster-mcp-config/integration.md)
+- [詳細配置](./taskmaster-mcp-config/docs/CONFIGURATION.md)
+- [工作流程](./taskmaster-mcp-config/docs/WORKFLOW.md)
+- [協同效應分析](./taskmaster-mcp-config/docs/SYNERGY.md)
 
 ## 開發標準
 
