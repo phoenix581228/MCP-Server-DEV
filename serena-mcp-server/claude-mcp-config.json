@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "ide-assistant"
+      ],
+      "description": "Serena - 語意化程式碼分析工具"
+    },
+    "serena-local": {
+      "command": "/path/to/uv",
+      "args": [
+        "run",
+        "--directory",
+        "/path/to/serena",
+        "serena-mcp-server",
+        "/path/to/project/.serena/project.yml"
+      ],
+      "description": "Serena - 本地安裝版本"
+    },
+    "serena-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "host",
+        "-v",
+        "/path/to/projects:/workspaces/projects",
+        "ghcr.io/oraios/serena:latest",
+        "serena-mcp-server",
+        "--transport",
+        "stdio"
+      ],
+      "description": "Serena - Docker 版本"
+    }
+  }
+}

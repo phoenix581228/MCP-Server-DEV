@@ -1,0 +1,84 @@
+# Serena 專案配置範本
+# 將此檔案複製到您的專案目錄：.serena/project.yml
+
+name: "my-project"
+description: "專案描述"
+version: "1.0.0"
+
+# 主要程式語言
+language: "python"  # python, java, typescript, ruby, go, csharp
+
+# 多語言專案可使用以下格式
+# languages:
+#   - name: "python"
+#     paths: ["backend/"]
+#   - name: "typescript"
+#     paths: ["frontend/"]
+
+# 專案結構
+structure:
+  # 原始碼目錄
+  source_dirs:
+    - "src"
+    - "lib"
+  
+  # 測試目錄
+  test_dirs:
+    - "tests"
+    - "test"
+  
+  # 忽略的檔案和目錄模式
+  ignore_patterns:
+    - "*.pyc"
+    - "__pycache__"
+    - ".git"
+    - "node_modules"
+    - "venv"
+    - ".venv"
+    - "dist"
+    - "build"
+    - "*.log"
+
+# 專案命令
+commands:
+  # 建置命令
+  build: "make build"
+  
+  # 測試命令
+  test: "pytest"
+  
+  # 程式碼檢查
+  lint: "pylint src/"
+  
+  # 格式化
+  format: "black src/"
+  
+  # 執行專案
+  run: "python -m src.main"
+
+# 工具特定設定（選用）
+tools:
+  # 搜尋工具設定
+  search:
+    max_results: 100
+    exclude_tests: false
+  
+  # 記憶體工具設定
+  memory:
+    auto_save: true
+    namespace: "project-specific"
+
+# 環境變數（選用）
+environment:
+  PYTHONPATH: "./src"
+  NODE_ENV: "development"
+
+# 自訂提示（選用）
+prompts:
+  onboarding: |
+    This is a Python web application using Django.
+    Focus on understanding the models and API structure.
+  
+  code_style: |
+    Follow PEP 8 for Python code.
+    Use type hints where appropriate.

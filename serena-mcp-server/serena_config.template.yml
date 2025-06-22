@@ -1,0 +1,68 @@
+# Serena 全域配置範本
+# 複製此檔案為 serena_config.yml 並根據需要調整
+
+version: "1.0"
+
+# 日誌設定
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "serena.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Language Server 設定
+language_servers:
+  python:
+    command: ["pylsp"]
+    args: []
+    startup_timeout: 30
+    
+  typescript:
+    command: ["typescript-language-server", "--stdio"]
+    args: []
+    startup_timeout: 30
+    
+  java:
+    auto_download: true
+    version: "latest"
+    startup_timeout: 60
+
+# 快取設定
+cache:
+  enabled: true
+  directory: "~/.serena/cache"
+  max_size: "1GB"
+  ttl: 86400  # 24 小時
+
+# 效能設定
+performance:
+  max_workers: 4
+  timeout: 30  # 秒
+  batch_size: 100
+
+# 記憶體儲存設定
+memory:
+  backend: "file"  # file, sqlite, redis
+  file:
+    directory: "~/.serena/memory"
+  
+# 安全設定
+security:
+  # 只允許在這些路徑下操作
+  allowed_paths:
+    - "~/projects"
+    - "/workspace"
+  
+  # 禁止存取的路徑（優先於 allowed_paths）
+  forbidden_paths:
+    - "~/.ssh"
+    - "~/.aws"
+    - "/etc"
+    - "/var"
+    - "**/.env"
+    - "**/secrets"
+
+# 擴展功能
+extensions:
+  enable_git_integration: true
+  enable_test_runner: true
+  enable_docker_support: false

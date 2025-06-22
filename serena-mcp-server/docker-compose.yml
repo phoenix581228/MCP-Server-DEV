@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  serena:
+    image: ghcr.io/oraios/serena:latest
+    container_name: serena-mcp
+    volumes:
+      # 掛載專案目錄（唯讀）
+      - ${PROJECT_PATH:-./}:/workspace:ro
+      # 掛載配置目錄
+      - ./serena_config.yml:/app/serena_config.yml:ro
+      - ./.serena:/workspace/.serena:ro
+      # 快取目錄
+      - serena-cache:/cache
+      - serena-memory:/memory
+    environment:
+      # MCP 設定
+      - SERENA_TRANSPORT=${SERENA_TRANSPORT:-stdio}
+      - SERENA_PORT=${SERENA_PORT:-9121}
+      
+      # Serena 設定
+      - SERENA_PROJECT=/workspace
+      - SERENA_CONTEXT=${SERENA_CONTEXT:-ide-assistant}
+      - SERENA_MODE=${SERENA_MODE:-}
+      - SERENA_LOG_LEVEL=${SERENA_LOG_LEVEL:-INFO}
+      
+      # 快取和記憶體
+      - SERENA_CACHE_DIR=/cache
+      - SERENA_MEMORY_DIR=/memory
+      
+      # Language Server 設定
+      - PYLSP_ENABLED=${PYLSP_ENABLED:-true}
+      - TSSERVER_ENABLED=${TSSERVER_ENABLED:-true}
+    ports:
+      # MCP SSE 端口
+      - "${SERENA_PORT:-9121}:9121"
+      # Dashboard 端口（如果啟用）
+      - "${SERENA_DASHBOARD_PORT:-24282}:24282"
+    stdin_open: true
+    tty: true
+    command: >
+      serena-mcp-server
+      --transport ${SERENA_TRANSPORT:-stdio}
+      --context ${SERENA_CONTEXT:-ide-assistant}
+      --project /workspace
+    networks:
+      - serena-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9121/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 可選：Language Server 容器
+  pylsp:
+    image: python:3.11-slim
+    container_name: serena-pylsp
+    volumes:
+      - ${PROJECT_PATH:-./}:/workspace:ro
+    command: >
+      bash -c "pip install python-lsp-server && pylsp"
+    networks:
+      - serena-network
+    profiles:
+      - lsp
+
+volumes:
+  serena-cache:
+    driver: local
+  serena-memory:
+    driver: local
+
+networks:
+  serena-network:
+    driver: bridge

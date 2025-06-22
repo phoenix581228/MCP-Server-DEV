@@ -28,6 +28,12 @@ MCP-Server-DEV/
 │   ├── docker-compose.yml    # Docker Compose 配置
 │   ├── deployment.md         # 部署指南
 │   └── troubleshooting.md    # 故障排除指南
+├── serena-mcp-server/         # Serena MCP Server 整合
+│   ├── docs/                  # 詳細文檔
+│   ├── *.yml                  # 配置檔案範本
+│   ├── install.sh             # 安裝腳本
+│   ├── run-serena.sh          # 執行腳本
+│   └── test-connection.sh     # 測試腳本
 └── scripts/                   # 專案管理工具
     ├── generate-tree.sh       # 生成專案結構
     ├── git-history-graph.sh   # Git 歷史視覺化
@@ -98,6 +104,22 @@ MCP-Server-DEV/
 - [配置說明](./openmemory-mcp-config/README.md)
 - [部署指南](./openmemory-mcp-config/deployment.md)
 - [故障排除](./openmemory-mcp-config/troubleshooting.md)
+
+### 4. serena-mcp-server
+[Serena MCP Server](https://github.com/oraios/serena) 的整合配置，提供語意化程式碼分析功能。
+
+**特點**：
+- ✅ 完全符合 MCP 協議標準（支援 stdio 和 SSE）
+- ✅ 基於 Language Server Protocol (LSP)
+- ✅ 50+ 強大的程式碼分析工具
+- ✅ 多語言支援（Python、TypeScript、Java、Ruby、Go、C#）
+
+**文檔**：
+- [專案說明](./serena-mcp-server/README.md)
+- [安裝指南](./serena-mcp-server/docs/INSTALLATION.md)
+- [配置指南](./serena-mcp-server/docs/CONFIGURATION.md)
+- [工具參考](./serena-mcp-server/docs/TOOLS_REFERENCE.md)
+- [整合指南](./serena-mcp-server/docs/INTEGRATION.md)
 
 ## 開發標準
 

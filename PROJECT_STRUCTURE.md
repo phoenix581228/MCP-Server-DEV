@@ -25,19 +25,24 @@ MCP-Server-DEV/
 ├── openmemory-mcp-config
 ├── perplexity-mcp-custom
 ├── scripts
+├── serena-mcp-server
 ├── zen-mcp-config
 ├── zen-mcp-server
+├── .DS_Store
+├── .gitignore
 ├── BRANCHING_STRATEGY.md
 ├── GIT_HISTORY.md
 ├── MILESTONES.md
 ├── PROJECT_STRUCTURE.md
 ├── README.md
+├── RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md
 ```
 
 ### perplexity-mcp-custom 詳細結構
 
 ```
 .
+./.DS_Store
 ./.env
 ./.env.example
 ./.env.test
@@ -47,8 +52,11 @@ MCP-Server-DEV/
 ./bin/perplexity-mcp.js
 ./CHANGELOG.md
 ./docs
+./docs/ARCHITECTURE_V2.md
 ./docs/DEVELOPMENT_PLAN.md
 ./docs/FEASIBILITY_STUDY.md
+./docs/ROADMAP_V2.md
+./docs/TECHNICAL_SPEC_V2.md
 ./docs/TECHNICAL_SPEC.md
 ./ENVIRONMENT-VALIDATION.md
 ./examples
@@ -59,6 +67,7 @@ MCP-Server-DEV/
 ./PRO-SEARCH-GUIDE.md
 ./README.md
 ./src
+./src/.DS_Store
 ./src/api
 ./src/api/client.ts
 ./src/index.ts
@@ -82,6 +91,7 @@ MCP-Server-DEV/
 ./test-simple.js
 ./test-validation.js
 ./tests
+./tests/.DS_Store
 ./tests/integration
 ./tests/unit
 ./tests/unit/cache.test.ts
@@ -96,7 +106,7 @@ MCP-Server-DEV/
 - TypeScript 檔案:       11
 - JavaScript 檔案:       15
 - Python 檔案:        1
-- Markdown 文檔:      446
+- Markdown 文檔:      449
 
 ### zen-mcp-server 詳細結構
 
@@ -105,6 +115,7 @@ MCP-Server-DEV/
 ./.claude
 ./.claude/settings.local.json
 ./.docker_cleaned
+./.DS_Store
 ./.env
 ./.env.example
 ./claude_config_example.json
@@ -275,6 +286,7 @@ MCP-Server-DEV/
 ./tests/triangle.png
 ./tools
 ./tools/__init__.py
+./tools/.DS_Store
 ./tools/analyze.py
 ./tools/base.py
 ./tools/chat.py
@@ -302,6 +314,7 @@ MCP-Server-DEV/
 ./tools/workflow/workflow_mixin.py
 ./utils
 ./utils/__init__.py
+./utils/.DS_Store
 ./utils/conversation_memory.py
 ./utils/file_types.py
 ./utils/file_utils.py

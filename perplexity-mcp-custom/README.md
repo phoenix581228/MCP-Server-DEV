@@ -217,6 +217,23 @@ MIT License - 詳見 [LICENSE](LICENSE) 檔案
 - [Perplexity AI](https://www.perplexity.ai/) - API 服務
 - 慈濟開發團隊 - 專案支援
 
+## 📋 V2.0 開發計劃
+
+我們正在開發 Perplexity MCP Custom Server 2.0，將帶來重大架構改進：
+
+### 主要變更
+- **原生 Streamable HTTP 支援** - 移除 HTTP Bridge 需求
+- **簡化架構** - 單一進程，更高效能
+- **完全符合最新 MCP 規範** - 支援 2025-06-18 協議版本
+
+### 相關文件
+- [開發路線圖](docs/ROADMAP_V2.md) - 詳細的開發計劃和時程
+- [架構設計](docs/ARCHITECTURE_V2.md) - V2.0 的技術架構
+- [技術規格](docs/TECHNICAL_SPEC_V2.md) - 實作細節和程式碼範例
+
+### 遷移指南
+V2.0 將提供完整的向後兼容性和漸進式遷移路徑。詳細資訊請參考上述文件。
+
 ---
 
 🤖 使用 Claude Code 開發

@@ -142,6 +142,14 @@ docs: 更新 API 使用說明
 - 標籤前綴: `zen/`
 - 範例: `zen/v2.3.0`
 
+### openmemory-mcp-config
+- 標籤前綴: `openmemory/`
+- 範例: `openmemory/v1.0.0`
+
+### serena-mcp-server
+- 標籤前綴: `serena/`
+- 範例: `serena/v1.0.0`
+
 ## 最佳實踐
 
 1. **經常同步**: 定期從上游分支拉取最新變更
@@ -176,4 +184,4 @@ docs: 更新 API 使用說明
 
 ---
 
-最後更新: 2025-06-21
+最後更新: 2025-06-22
