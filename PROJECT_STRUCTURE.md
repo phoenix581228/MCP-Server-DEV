@@ -22,6 +22,7 @@ MCP-Server-DEV/
 ├── .
 ├── ..
 ├── .git
+├── .github
 ├── openmemory-mcp-config
 ├── perplexity-mcp-custom
 ├── scripts
@@ -31,13 +32,18 @@ MCP-Server-DEV/
 ├── zen-mcp-server
 ├── .DS_Store
 ├── .gitignore
+├── .taskmaster.yaml
 ├── BRANCHING_STRATEGY.md
+├── check-taskmaster.sh
 ├── GIT_HISTORY.md
 ├── MILESTONES.md
+├── PORTS.md
 ├── PROJECT_STRUCTURE.md
 ├── README.md
 ├── RESEARCH_REPORT_MCP_SERVERS_2025_LATEST.md
 ├── RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md
+├── taskmaster-status.md
+├── test-prd.txt
 ```
 
 ### perplexity-mcp-custom 詳細結構
@@ -57,6 +63,7 @@ MCP-Server-DEV/
 ./docs/ARCHITECTURE_V2.md
 ./docs/DEVELOPMENT_PLAN.md
 ./docs/FEASIBILITY_STUDY.md
+./docs/HTTP_TRANSPORT.md
 ./docs/ROADMAP_V2.md
 ./docs/TECHNICAL_SPEC_V2.md
 ./docs/TECHNICAL_SPEC.md
@@ -67,6 +74,7 @@ MCP-Server-DEV/
 ./package-lock.json
 ./package.json
 ./PRO-SEARCH-GUIDE.md
+./quick-test.sh
 ./README.md
 ./src
 ./src/.DS_Store
@@ -74,23 +82,34 @@ MCP-Server-DEV/
 ./src/api/client.ts
 ./src/index.ts
 ./src/server
+./src/server/http.ts
 ./src/server/index.ts
+./src/server/middleware.ts
 ./src/tools
 ./src/tools/schemas.ts
+./src/transport
+./src/transport/index.ts
 ./src/types
 ./src/types/index.ts
 ./src/utils
 ./src/utils/cache.ts
+./test-all-4-tools.sh
 ./test-all-models.js
+./test-all-tools.sh
 ./test-api-correct.js
 ./test-api-direct.js
 ./test-deep-research.js
 ./test-env-direct.js
 ./test-env-validation.js
+./test-global-deploy.sh
+./test-http.sh
+./test-prd.txt
+./test-report-v2.md
 ./test-search-final.js
 ./test-search.js
 ./test-server.js
 ./test-simple.js
+./test-stdio.sh
 ./test-validation.js
 ./tests
 ./tests/.DS_Store
@@ -105,10 +124,10 @@ MCP-Server-DEV/
 ```
 
 #### 統計資訊
-- TypeScript 檔案:       11
+- TypeScript 檔案:       14
 - JavaScript 檔案:       15
 - Python 檔案:        1
-- Markdown 文檔:      449
+- Markdown 文檔:      528
 
 ### zen-mcp-server 詳細結構
 

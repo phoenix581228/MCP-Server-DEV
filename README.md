@@ -11,6 +11,7 @@
 - 📈 [Git 歷史報告](./GIT_HISTORY.md) - 提交歷史和統計
 - 🔬 [MCP Server 整合研究報告](./RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md) - 四大 MCP Server vs 原生功能深度分析
 - 🚀 [六大 MCP Server 協同生態系統研究報告](./RESEARCH_REPORT_MCP_SERVERS_2025_LATEST.md) - 最新深度研究（含 Task Master）
+- 🔌 [MCP Server Port 使用指南](./PORTS.md) - 端口保留和管理規範
 
 ## 專案結構概覽
 
@@ -44,7 +45,9 @@ MCP-Server-DEV/
     ├── generate-tree.sh       # 生成專案結構
     ├── git-history-graph.sh   # Git 歷史視覺化
     ├── project-navigator.sh   # 互動式導航器
-    └── setup-git-hooks.sh     # Git hooks 設定
+    ├── setup-git-hooks.sh     # Git hooks 設定
+    ├── check-mcp-ports.sh     # MCP 端口保護檢查
+    └── kill-mcp-ports.sh      # MCP 端口釋放工具
 ```
 
 ## 專案管理工具
