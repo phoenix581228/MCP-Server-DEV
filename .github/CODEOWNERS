@@ -1,0 +1,22 @@
+# MCP Server Development Code Owners
+# 這個文件定義了代碼審查的負責人
+
+# 全域擁有者
+* @phoenix581228
+
+# MCP Server 特定擁有者
+/perplexity-mcp-custom/ @phoenix581228
+/zen-mcp-config/ @phoenix581228
+/openmemory-mcp-config/ @phoenix581228
+/serena-mcp-server/ @phoenix581228
+/taskmaster-mcp-config/ @phoenix581228
+/mcp-deployment-kit/ @phoenix581228
+
+# 文檔
+*.md @phoenix581228
+/docs/ @phoenix581228
+
+# 配置文件
+.github/ @phoenix581228
+*.yml @phoenix581228
+*.yaml @phoenix581228
