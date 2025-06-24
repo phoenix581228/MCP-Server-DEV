@@ -1,0 +1,64 @@
+# 構建產物
+serena-mcp-cli-installer/
+serena-mcp-cli-installer-*.tar.gz
+
+# 日誌檔案
+*.log
+install.log
+uninstall.log
+
+# 測試檔案
+test-*.js
+test-*.sh
+!test-mcp.sh
+test-serena.sh
+
+# 暫存檔案
+*.tmp
+*.swp
+*.swo
+*~
+
+# OS 檔案
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虛擬環境
+venv/
+.venv/
+ENV/
+env/
+
+# Serena 專案檔案（測試用）
+.serena/
+
+# 環境設定
+.env
+.env.local
+*.key

@@ -35,7 +35,7 @@ export function createCorsMiddleware(config: SecurityConfig) {
     },
     credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'MCP-Session-Id', 'Last-Event-ID'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'MCP-Session-Id', 'MCP-Protocol-Version', 'Accept', 'Last-Event-ID'],
     exposedHeaders: ['MCP-Session-Id'],
   };
   
