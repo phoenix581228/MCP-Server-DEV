@@ -1,0 +1,520 @@
+# 北斗七星陣 MCP 團隊 Docker Compose 編排
+# Big Dipper Formation - Complete MCP Server Orchestration
+
+version: '3.8'
+
+services:
+  # 天樞星（Dubhe）- TaskMaster AI
+  taskmaster:
+    build:
+      context: ./taskmaster
+      dockerfile: Dockerfile
+    image: bigdipper/taskmaster:latest
+    container_name: taskmaster_mcp_server
+    hostname: taskmaster-dubhe
+    restart: unless-stopped
+    environment:
+      # API 金鑰
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # TaskMaster 配置
+      - TASKMASTER_TRANSPORT=${TASKMASTER_TRANSPORT:-stdio}
+      - TASKMASTER_PORT=${TASKMASTER_PORT:-9120}
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${TASKMASTER_PORT:-9120}:9120"
+    volumes:
+      - taskmaster_data:/app/data
+      - taskmaster_logs:/app/logs
+      - taskmaster_config:/app/config
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    labels:
+      - "bigdipper.service=taskmaster"
+      - "bigdipper.star=dubhe"
+      - "bigdipper.role=project-management"
+
+  # 天璇星（Merak）- Perplexity Custom 2.0
+  perplexity:
+    build:
+      context: ./perplexity-custom
+      dockerfile: Dockerfile
+    image: bigdipper/perplexity-custom:latest
+    container_name: perplexity_mcp_server
+    hostname: perplexity-merak
+    restart: unless-stopped
+    environment:
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - PERPLEXITY_TRANSPORT=${PERPLEXITY_TRANSPORT:-stdio}
+      - PERPLEXITY_PORT=${PERPLEXITY_PORT:-8080}
+      - PERPLEXITY_MODEL=${PERPLEXITY_MODEL:-sonar-pro}
+      - REDIS_URL=redis://redis-perplexity:6379
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${PERPLEXITY_PORT:-8080}:8080"
+    volumes:
+      - perplexity_data:/app/data
+      - perplexity_logs:/app/logs
+      - perplexity_cache:/app/cache
+    networks:
+      - bigdipper_network
+    depends_on:
+      - redis-perplexity
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.5'
+        reservations:
+          memory: 384M
+          cpus: '0.3'
+    labels:
+      - "bigdipper.service=perplexity"
+      - "bigdipper.star=merak"
+      - "bigdipper.role=research-analysis"
+
+  # Redis for Perplexity
+  redis-perplexity:
+    image: redis:7-alpine
+    container_name: perplexity_redis
+    hostname: redis-perplexity
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - perplexity_redis_data:/data
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+
+  # 天璣星（Phecda）- Context7 Cached
+  context7:
+    build:
+      context: ./context7
+      dockerfile: Dockerfile
+    image: bigdipper/context7:latest
+    container_name: context7_mcp_server
+    hostname: context7-phecda
+    restart: unless-stopped
+    environment:
+      - CONTEXT7_TRANSPORT=${CONTEXT7_TRANSPORT:-stdio}
+      - CONTEXT7_PORT=${CONTEXT7_PORT:-9119}
+      - CONTEXT7_CACHE_ENABLED=${CONTEXT7_CACHE_ENABLED:-true}
+      - REDIS_URL=redis://redis-context7:6379
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${CONTEXT7_PORT:-9119}:9119"
+    volumes:
+      - context7_data:/app/data
+      - context7_logs:/app/logs
+      - context7_cache:/app/cache
+    networks:
+      - bigdipper_network
+    depends_on:
+      - redis-context7
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    labels:
+      - "bigdipper.service=context7"
+      - "bigdipper.star=phecda"
+      - "bigdipper.role=knowledge-guardian"
+
+  # Redis for Context7
+  redis-context7:
+    image: redis:7-alpine
+    container_name: context7_redis
+    hostname: redis-context7
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - context7_redis_data:/data
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # 天權星（Megrez）- OpenMemory（已存在的服務）
+  # 注意：這個服務假設已經在運行，或者從另一個 compose 檔案啟動
+  openmemory:
+    image: openmemory/openmemory-mcp:latest
+    container_name: openmemory_mcp_server
+    hostname: openmemory-megrez
+    restart: unless-stopped
+    environment:
+      - OPENMEMORY_PORT=8765
+      - QDRANT_URL=http://qdrant:6333
+      - POSTGRES_URL=postgresql://openmemory:password@postgres:5432/openmemory
+      - TZ=Asia/Taipei
+    ports:
+      - "8765:8765"
+      - "3000:3000"  # Web UI
+    volumes:
+      - openmemory_data:/app/data
+    networks:
+      - bigdipper_network
+    depends_on:
+      - qdrant
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    labels:
+      - "bigdipper.service=openmemory"
+      - "bigdipper.star=megrez"
+      - "bigdipper.role=memory-palace"
+
+  # Qdrant for OpenMemory
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: openmemory_qdrant
+    hostname: qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - bigdipper_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+  # PostgreSQL for OpenMemory
+  postgres:
+    image: postgres:15-alpine
+    container_name: openmemory_postgres
+    hostname: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=openmemory
+      - POSTGRES_USER=openmemory
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openmemory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+  # 玉衡星（Alioth）- Zen MCP
+  zen-mcp:
+    build:
+      context: ./zen-mcp
+      dockerfile: Dockerfile
+    image: bigdipper/zen-mcp:latest
+    container_name: zen_mcp_server
+    hostname: zen-alioth
+    restart: unless-stopped
+    environment:
+      # AI 提供者 API 金鑰
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - XAI_API_KEY=${XAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      # Zen MCP 配置
+      - ZEN_TRANSPORT=${ZEN_TRANSPORT:-stdio}
+      - ZEN_PORT=${ZEN_PORT:-8082}
+      - ZEN_DEFAULT_MODEL=${ZEN_DEFAULT_MODEL:-pro}
+      - ZEN_THINKING_MODE=${ZEN_THINKING_MODE:-medium}
+      - REDIS_URL=redis://redis-zen:6379
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${ZEN_PORT:-8082}:8082"
+    volumes:
+      - zen_data:/app/data
+      - zen_logs:/app/logs
+      - zen_config:/app/config
+      - zen_cache:/app/cache
+    networks:
+      - bigdipper_network
+    depends_on:
+      - redis-zen
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    labels:
+      - "bigdipper.service=zen-mcp"
+      - "bigdipper.star=alioth"
+      - "bigdipper.role=multi-model-intelligence"
+
+  # Redis for Zen MCP
+  redis-zen:
+    image: redis:7-alpine
+    container_name: zen_redis
+    hostname: redis-zen
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - zen_redis_data:/data
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+
+  # 開陽星（Mizar）- Serena
+  serena:
+    build:
+      context: ./serena
+      dockerfile: Dockerfile
+    image: bigdipper/serena:latest
+    container_name: serena_mcp_server
+    hostname: serena-mizar
+    restart: unless-stopped
+    environment:
+      - SERENA_TRANSPORT=${SERENA_TRANSPORT:-stdio}
+      - SERENA_PORT=${SERENA_PORT:-9121}
+      - SERENA_CONTEXT=${SERENA_CONTEXT:-ide-assistant}
+      - SERENA_PROJECT=/workspace
+      - PYLSP_ENABLED=${PYLSP_ENABLED:-true}
+      - TSSERVER_ENABLED=${TSSERVER_ENABLED:-true}
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${SERENA_PORT:-9121}:9121"
+      - "24282:24282"  # Dashboard
+    volumes:
+      - serena_data:/app/data
+      - serena_logs:/app/logs
+      - serena_config:/app/config
+      - serena_cache:/app/cache
+      - ${PROJECT_PATH:-./workspace}:/workspace
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.5'
+        reservations:
+          memory: 384M
+          cpus: '0.3'
+    labels:
+      - "bigdipper.service=serena"
+      - "bigdipper.star=mizar"
+      - "bigdipper.role=code-refiner"
+
+  # 瑤光星（Alkaid）- Sequential Thinking
+  sequential-thinking:
+    build:
+      context: ./sequential-thinking
+      dockerfile: Dockerfile
+    image: bigdipper/sequential-thinking:latest
+    container_name: sequential_thinking_server
+    hostname: sequential-alkaid
+    restart: unless-stopped
+    environment:
+      - SEQUENTIAL_TRANSPORT=${SEQUENTIAL_TRANSPORT:-stdio}
+      - SEQUENTIAL_PORT=${SEQUENTIAL_PORT:-9122}
+      - SEQUENTIAL_MAX_STEPS=${SEQUENTIAL_MAX_STEPS:-50}
+      - SEQUENTIAL_DEFAULT_MODE=${SEQUENTIAL_DEFAULT_MODE:-medium}
+      - DEBUG=${DEBUG:-false}
+      - TZ=Asia/Taipei
+    ports:
+      - "${SEQUENTIAL_PORT:-9122}:9122"
+    volumes:
+      - sequential_data:/app/data
+      - sequential_logs:/app/logs
+      - sequential_config:/app/config
+      - sequential_cache:/app/cache
+    networks:
+      - bigdipper_network
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 128M
+          cpus: '0.2'
+    labels:
+      - "bigdipper.service=sequential-thinking"
+      - "bigdipper.star=alkaid"
+      - "bigdipper.role=thinking-navigator"
+
+# 卷定義
+volumes:
+  # TaskMaster volumes
+  taskmaster_data:
+    name: bigdipper_taskmaster_data
+  taskmaster_logs:
+    name: bigdipper_taskmaster_logs
+  taskmaster_config:
+    name: bigdipper_taskmaster_config
+
+  # Perplexity volumes
+  perplexity_data:
+    name: bigdipper_perplexity_data
+  perplexity_logs:
+    name: bigdipper_perplexity_logs
+  perplexity_cache:
+    name: bigdipper_perplexity_cache
+  perplexity_redis_data:
+    name: bigdipper_perplexity_redis_data
+
+  # Context7 volumes
+  context7_data:
+    name: bigdipper_context7_data
+  context7_logs:
+    name: bigdipper_context7_logs
+  context7_cache:
+    name: bigdipper_context7_cache
+  context7_redis_data:
+    name: bigdipper_context7_redis_data
+
+  # OpenMemory volumes
+  openmemory_data:
+    name: bigdipper_openmemory_data
+  qdrant_data:
+    name: bigdipper_qdrant_data
+  postgres_data:
+    name: bigdipper_postgres_data
+
+  # Zen MCP volumes
+  zen_data:
+    name: bigdipper_zen_data
+  zen_logs:
+    name: bigdipper_zen_logs
+  zen_config:
+    name: bigdipper_zen_config
+  zen_cache:
+    name: bigdipper_zen_cache
+  zen_redis_data:
+    name: bigdipper_zen_redis_data
+
+  # Serena volumes
+  serena_data:
+    name: bigdipper_serena_data
+  serena_logs:
+    name: bigdipper_serena_logs
+  serena_config:
+    name: bigdipper_serena_config
+  serena_cache:
+    name: bigdipper_serena_cache
+
+  # Sequential Thinking volumes
+  sequential_data:
+    name: bigdipper_sequential_data
+  sequential_logs:
+    name: bigdipper_sequential_logs
+  sequential_config:
+    name: bigdipper_sequential_config
+  sequential_cache:
+    name: bigdipper_sequential_cache
+
+# 網路定義
+networks:
+  bigdipper_network:
+    name: bigdipper_mcp_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
