@@ -1,0 +1,73 @@
+MIT License
+
+Copyright (c) 2025 北斗七星並行影片分析系統 (BigDipper Video Analysis System)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 貢獻者
+
+- **北斗七星 AI 協作架構** - 架構設計與實現
+- **Claude Code** - 開發協作夥伴
+
+## 第三方套件授權
+
+此專案使用了以下開源套件，各套件均採用其各自的授權條款：
+
+- Google Generative AI Python SDK - Apache License 2.0
+- Anthropic Python SDK - MIT License  
+- MCP (Model Context Protocol) - MIT License
+- asyncio, pathlib, argparse - Python Software Foundation License
+- 其他依賴套件 - 請參考各套件的 LICENSE 文件
+
+## 使用條款
+
+1. **商業使用**：允許商業使用
+2. **修改**：允許修改原始碼
+3. **分發**：允許分發原始碼和二進位檔案
+4. **私用**：允許私人使用
+5. **授權聲明**：在所有副本中必須包含版權聲明和許可聲明
+6. **責任限制**：作者不承擔任何責任
+
+## API 使用聲明
+
+本軟體整合了以下第三方API服務：
+
+- **Google Gemini API** - 需要遵循 Google Cloud 服務條款
+- **Anthropic Claude API** - 需要遵循 Anthropic 使用條款
+
+使用者需要：
+1. 獲得有效的API金鑰
+2. 遵循相應的服務條款
+3. 承擔API使用費用
+4. 確保符合各服務提供商的使用政策
+
+## 免責聲明
+
+1. 此軟體「按現狀」提供，不提供任何明示或暗示的保證
+2. 作者不對使用此軟體造成的任何損失負責
+3. API使用費用由使用者自行承擔
+4. 使用者應確保遵循所有相關的法律法規和服務條款
+
+---
+
+**專案首頁**: https://github.com/phoenix581228/BigDipper-Video-Analysis  
+**版本**: v1.0.0  
+**最後更新**: 2025-06-29

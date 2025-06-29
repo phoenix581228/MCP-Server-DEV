@@ -1,0 +1,306 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository and CI/CD Pipeline",
+        "description": "Initialize project repository with version control and set up CI/CD pipeline for automated testing and deployment.",
+        "details": "Use Git for version control. Set up GitHub Actions or GitLab CI for CI/CD. Configure linting, unit test automation, and deployment scripts. Recommended: Python 3.10+, pytest 7.4.0, black 23.12.0, flake8 6.1.0.",
+        "testStrategy": "Verify repository setup, CI/CD pipeline triggers, and automated test execution.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Design and Implement Video Grouping Logic",
+        "description": "Implement logic to scan and group videos into batches of 3, as specified in the PRD.",
+        "details": "Write a function `gemini_scan_and_group_videos` that takes a list of video files and returns 13 groups of up to 3 videos each. Use Python’s itertools or custom logic for grouping. Store group info in a structured format.",
+        "testStrategy": "Unit test with mock video lists to ensure correct grouping and edge case handling.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "in-progress",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Concurrent Video Processing for Groups",
+        "description": "Develop logic to process up to 3 videos in a group concurrently.",
+        "details": "Use Python asyncio.Semaphore(3) to limit concurrent video processing within a group. Each video is processed by a separate coroutine. Ensure group processing is isolated and robust.",
+        "testStrategy": "Test with mock video processing tasks to verify concurrency control and error isolation.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Design and Implement Status Management System",
+        "description": "Create a module to track and persist processing status for each group and video.",
+        "details": "Implement a status management module that writes to and reads from `processing_status.json`. Track current group, group progress, video status, and statistics. Use Python’s json module for serialization.",
+        "testStrategy": "Test status file creation, updates, and recovery after interruptions.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Group Processing API Endpoints",
+        "description": "Expose APIs for processing video groups and retrieving status.",
+        "details": "Add endpoints for `gemini_process_video_group`, `gemini_get_group_status`, and `gemini_resume_from_group`. Use FastAPI 0.109.0 for RESTful API development. Secure endpoints with rate limiting.",
+        "testStrategy": "API contract testing with Postman or pytest. Verify rate limiting and error handling.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Develop Real-Time Status Display Module",
+        "description": "Build a module to display real-time processing status to users.",
+        "details": "Implement a UI module that reads from `processing_status.json` and displays current group, video status, progress, and time estimates. Use rich or textual for CLI, or Flask 3.0.0 for web UI.",
+        "testStrategy": "Test UI updates with simulated status changes and verify accuracy.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Error Handling and Isolation",
+        "description": "Ensure single video failure does not affect other videos in the group.",
+        "details": "Wrap video processing in try-except blocks. Log errors and update status file. Use asyncio.gather with return_exceptions=True for robust error handling.",
+        "testStrategy": "Inject errors in test videos and verify group isolation and status updates.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Add Support for Interruption and Resume",
+        "description": "Enable processing to resume from any group after interruption.",
+        "details": "Implement `gemini_resume_from_group` to read status file and restart processing from specified group. Validate group and video status before resuming.",
+        "testStrategy": "Simulate interruptions and verify correct resumption from any group.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Group Completion Summary and Feedback",
+        "description": "Display summary and feedback after each group completes.",
+        "details": "After each group, generate and display a summary (success/fail count, time, cost). Use status file for data. Display via UI module.",
+        "testStrategy": "Verify summary accuracy and display after each group completes.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Develop Cost and Time Tracking Module",
+        "description": "Track and display cumulative processing cost and time.",
+        "details": "Extend status management to track and display total elapsed time, estimated remaining time, and cost. Use Python’s datetime for time tracking.",
+        "testStrategy": "Test with varying processing times and verify accurate time/cost updates.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement User Experience Enhancements",
+        "description": "Enhance UX with clear start, progress, and completion displays.",
+        "details": "Display total video count, grouping strategy, and estimated time at start. Show current group, individual video status, and statistics during processing. Display final summary at end.",
+        "testStrategy": "Verify all UX elements are present and updated correctly throughout processing.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          9,
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Add API Rate Limiting and Protection",
+        "description": "Protect APIs from abuse with rate limiting.",
+        "details": "Integrate FastAPI’s rate limiting middleware or use slowapi 1.0.0. Configure sensible limits for each endpoint.",
+        "testStrategy": "Test API endpoints with excessive requests and verify rate limiting.",
+        "priority": "low",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Develop Testing and Validation Scripts",
+        "description": "Create automated test scripts for all modules.",
+        "details": "Write pytest scripts for unit, integration, and end-to-end testing. Include mock video processing, status updates, and UI interactions.",
+        "testStrategy": "Run automated tests and verify coverage for all critical paths.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Optimize Performance and Scalability",
+        "description": "Optimize video processing and status management for performance.",
+        "details": "Profile video processing and status updates. Optimize asyncio usage, file I/O, and API response times. Consider database backend for large-scale deployments.",
+        "testStrategy": "Measure processing time and resource usage. Verify improvements.",
+        "priority": "low",
+        "dependencies": [
+          3,
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Documentation and Deployment Preparation",
+        "description": "Prepare comprehensive documentation and deployment artifacts.",
+        "details": "Write user and developer documentation. Prepare Dockerfile and deployment scripts. Include setup, usage, and troubleshooting guides.",
+        "testStrategy": "Verify documentation accuracy and deployment process.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          13
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Design Parallel Processing Architecture",
+        "description": "Redesign and implement a parallel processing architecture for the intelligent video scene analysis system, specifically tailored for Claude Code CLI automated development workflows. The architecture must incorporate the core breakthroughs of the Beidou Seven-Star collaboration: sequential thinking-based parallel paths (Path A: AI automatic, Path B: user selection, Path C: universal fallback), cost control mechanisms, unified and simplified user experience, modular and phased technical implementation, and robust error handling. The solution must support automation, progress tracking, interruption recovery, and seamless integration with TaskMaster task management.",
+        "status": "pending",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "priority": "medium",
+        "details": "1. **Workflow Redesign for Claude Code CLI:**\n   - Structure the entire development as a sequence of CLI-automated tasks, each with clear deliverables and acceptance criteria.\n   - Ensure each phase can be resumed after interruption and supports progress tracking.\n\n2. **Parallel Path Architecture Implementation:**\n   - Implement three modular, parallel processing paths:\n     a. Path A: AI Automatic Identification → Automated Analysis\n     b. Path B: User Direct Selection (via CLI prompts or config) → Specified Analysis\n     c. Path C: Universal Analysis (robust fallback)\n   - Each path must be independently testable and deployable.\n\n3. **Routing and Orchestration:**\n   - Develop a CLI-based routing mechanism to direct video processing requests to the appropriate path based on user input, config, or system defaults.\n   - Integrate cost gate and tiered access controls for resource management.\n\n4. **Module Development:**\n   - Path A: Integrate with AI models for scene recognition; implement error handling and fallback to Path C.\n   - Path B: Design CLI-driven user selection interface; validate input and handle errors.\n   - Path C: Build a generic, robust analysis pipeline with comprehensive logging and error recovery.\n\n5. **Unified Output and Interface:**\n   - Standardize output data structures across all paths.\n   - Provide a unified CLI interface for result presentation and user interaction.\n\n6. **Progress Tracking and Interruption Recovery:**\n   - Implement checkpointing and state persistence for all long-running tasks.\n   - Ensure the system can resume from the last successful step after interruption.\n\n7. **Integration with TaskMaster:**\n   - All tasks, subtasks, and progress updates must be synchronized with the TaskMaster system for unified management.\n\n8. **DevOps Pipeline:**\n   - Automate testing, deployment, and documentation generation via CLI scripts.\n   - Include continuous integration hooks and deployment scripts compatible with Claude Code CLI constraints.\n\n9. **Configuration and Cost Control:**\n   - Provide CLI-accessible configuration for default paths, user preferences, and cost control settings.\n   - Implement tiered access and cost gates as per Pro requirements.\n\n10. **Logging, Monitoring, and Error Handling:**\n    - Implement detailed CLI-accessible logs and performance metrics for each path.\n    - Provide monitoring scripts and error notification mechanisms.\n\n11. **Documentation:**\n    - Generate technical documentation and CLI user guides as part of the automated workflow.\n    - Ensure all documentation is versioned and accessible via CLI commands.",
+        "testStrategy": "1. **Unit Testing:**\n   - Write CLI-invokable unit tests for each module (AI Identification, User Selection, Universal Analysis).\n   - Test the routing mechanism with various CLI input scenarios.\n\n2. **Integration Testing:**\n   - Verify correct integration with video processing and TaskMaster systems.\n   - Test unified output aggregation from all paths.\n\n3. **Performance and Cost Testing:**\n   - Measure processing times and resource usage for each path under different CLI-invoked loads.\n   - Validate cost gate and tiered access controls.\n\n4. **CLI User Experience Testing:**\n   - Conduct usability tests for CLI prompts and user selection flows.\n   - Verify progress tracking, interruption recovery, and state persistence.\n\n5. **Error Handling and Fallback Testing:**\n   - Simulate failures in AI identification and verify fallback to Universal Analysis.\n   - Test error handling and logging in all modules.\n\n6. **End-to-End Automation Testing:**\n   - Run automated CLI workflows on diverse video samples through each path.\n   - Verify correct results, progress tracking, and error recovery.\n\n7. **Configuration and Cost Control Testing:**\n   - Test CLI configuration options for default paths, user preferences, and cost settings.\n   - Validate that user preferences and cost gates are enforced correctly.\n\n8. **Logging and Monitoring Test:**\n   - Verify CLI-accessible logs and performance metrics.\n   - Test monitoring scripts for real-time feedback and error alerts.\n\n9. **Compatibility Testing:**\n   - Ensure the architecture works with various video formats and analysis types via CLI.\n   - Verify compatibility with different user roles and permission levels.\n\n10. **Stress and Recovery Testing:**\n    - Test system behavior under high load and concurrent CLI requests.\n    - Simulate interruptions and verify correct recovery and progress tracking.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define CLI Task Structure and Acceptance Criteria",
+            "description": "Design the overall CLI-based workflow, breaking down the development into discrete, automatable tasks with clear deliverables and acceptance standards for each phase.",
+            "status": "in-progress",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Modular Parallel Paths for Video Analysis",
+            "description": "Develop Path A (AI automatic), Path B (user selection via CLI), and Path C (universal fallback) as independent, testable CLI modules.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Develop CLI Routing and Orchestration Logic",
+            "description": "Create a CLI-based routing mechanism that directs video processing requests to the appropriate path based on user input, configuration, or system defaults. Integrate cost gate and tiered access controls.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate Progress Tracking and Interruption Recovery",
+            "description": "Implement checkpointing and state persistence for all CLI tasks to support progress tracking and recovery from interruptions.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Automate Testing, Deployment, and Documentation via CLI",
+            "description": "Set up CLI scripts for automated testing, deployment, and documentation generation. Ensure compatibility with Claude Code CLI and TaskMaster integration.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Unified CLI Output and Logging",
+            "description": "Standardize output formats and provide detailed CLI-accessible logs and performance metrics for all processing paths.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Synchronize with TaskMaster Task Management",
+            "description": "Ensure all CLI task progress, results, and updates are synchronized with the TaskMaster system for unified project management.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-29T09:22:18.353Z",
+      "updated": "2025-06-29T09:51:44.665Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

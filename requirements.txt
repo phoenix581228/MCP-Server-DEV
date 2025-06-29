@@ -1,0 +1,80 @@
+# 北斗七星並行影片分析系統依賴
+
+# 核心AI服務
+google-generativeai>=0.3.0    # Google Gemini API
+anthropic>=0.25.0              # Anthropic Claude API (可選)
+
+# MCP (Model Context Protocol) 支援
+mcp>=1.0.0                     # MCP 核心協議
+# Note: 需要 Node.js 環境執行 MCP 服務
+
+# HTTP 客戶端與API整合  
+requests>=2.31.0               # HTTP 請求處理
+httpx>=0.25.0                  # 異步 HTTP 客戶端
+aiohttp>=3.9.0                 # 異步 HTTP 框架
+
+# 數據處理與格式化
+json5>=0.9.0                   # 增強型 JSON 處理
+pydantic>=2.4.0                # 數據驗證與序列化
+dataclasses-json>=0.6.0        # Dataclass JSON 序列化
+
+# 異步與並行處理
+asyncio>=3.4.3                 # 異步編程支援（Python 內建）
+aiofiles>=23.2.1               # 異步檔案操作
+
+# 檔案與路徑處理
+pathlib>=1.0.1                 # 路徑處理（Python 內建）
+glob2>=0.7                     # 增強型檔案匹配
+watchdog>=3.0.0                # 檔案系統監控
+
+# 命令行介面
+argparse>=1.4.0                # 命令行參數解析（Python 內建）
+rich>=13.6.0                   # 豐富的終端輸出
+click>=8.1.0                   # 命令行介面框架
+tqdm>=4.66.0                   # 進度條顯示
+
+# 日期時間處理
+python-dateutil>=2.8.0         # 日期時間工具
+pytz>=2023.3                   # 時區處理
+
+# 配置管理
+python-dotenv>=1.0.0           # 環境變數檔案支援
+pyyaml>=6.0.1                  # YAML 配置檔案支援
+configparser>=5.3.0            # INI 配置檔案支援
+
+# 測試框架
+pytest>=7.4.0                  # 測試框架
+pytest-asyncio>=0.21.0         # 異步測試支援
+pytest-cov>=4.1.0              # 測試覆蓋率
+unittest>=1.0.0                # 單元測試（Python 內建）
+
+# 開發工具
+black>=23.9.0                  # 代碼格式化
+isort>=5.12.0                  # 導入排序
+flake8>=6.1.0                  # 代碼檢查
+mypy>=1.6.0                    # 類型檢查
+
+# 性能監控與除錯
+psutil>=5.9.0                  # 系統資源監控
+memory-profiler>=0.61.0        # 記憶體分析
+py-spy>=0.3.14                 # 性能分析器
+
+# 安全性
+cryptography>=41.0.0           # 加密支援
+certifi>=2023.7.22             # SSL 證書
+
+# 可選：影片處理（如需要本地預處理）
+# opencv-python>=4.8.0         # 影片處理（較大套件，按需安裝）
+# moviepy>=1.0.3               # 影片編輯（較大套件，按需安裝）
+
+# TaskMaster 整合（如需要）
+# task-master-ai>=1.0.0        # TaskMaster AI （透過 npx 安裝）
+
+# Python 版本要求
+# python>=3.8,<4.0
+
+# 系統要求注意事項：
+# 1. 需要 Node.js 18+ 用於 MCP 服務
+# 2. 需要有效的 Google API 金鑰 
+# 3. 建議 16GB+ RAM 用於大量影片處理
+# 4. 建議 SSD 儲存以提升 I/O 性能

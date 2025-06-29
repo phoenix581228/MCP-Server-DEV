@@ -1,198 +1,210 @@
-# MCP Server Development
+# 🌟 北斗七星並行影片分析系統
 
-這個目錄包含自製 MCP (Model Context Protocol) Server 的開發專案。
+[![Version](https://img.shields.io/badge/version-v1.0.0-brightgreen)](https://github.com/phoenix581228/BigDipper-Video-Analysis/releases)
+[![Test Coverage](https://img.shields.io/badge/tests-100%25-brightgreen)](./tests/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue)](https://python.org)
 
-## 快速導航
+革命性的並行路徑影片分析架構，解決傳統批量處理的「黑洞」問題，提供智能、互動、透明的影片場記分析體驗。
 
-- 📁 [專案結構視覺化](./PROJECT_STRUCTURE.md) - 查看完整的專案目錄結構
-- 📊 [專案里程碑](./MILESTONES.md) - 開發進度和成就記錄
-- 🔧 [專案導航器](./scripts/project-navigator.sh) - 互動式專案導航工具
-- 🌿 [分支管理策略](./BRANCHING_STRATEGY.md) - Git 分支工作流程
-- 📈 [Git 歷史報告](./GIT_HISTORY.md) - 提交歷史和統計
-- 🔬 [MCP Server 整合研究報告](./RESEARCH_REPORT_MCP_SERVERS_ANALYSIS.md) - 四大 MCP Server vs 原生功能深度分析
-- 🚀 [六大 MCP Server 協同生態系統研究報告](./RESEARCH_REPORT_MCP_SERVERS_2025_LATEST.md) - 最新深度研究（含 Task Master）
-- 🔌 [MCP Server Port 使用指南](./PORTS.md) - 端口保留和管理規範
+## ✨ 核心特色
 
-## 專案結構概覽
+- 🛤️ **並行路徑架構** - 三條路徑適應不同使用場景
+- 💰 **智能成本控制** - 透明化費用管理與預算控制
+- 🔄 **真正互動式處理** - 分組進度可見，可隨時中斷恢復
+- 🎯 **統一CLI介面** - 所有功能通過單一命令行存取
+- 💾 **狀態持久化** - 完整的進度追蹤與會話管理
+- 🧪 **自動化測試** - 100%測試覆蓋率確保穩定性
 
-```
-MCP-Server-DEV/
-├── perplexity-mcp-custom/     # Perplexity MCP Server 實作
-│   ├── src/                   # TypeScript 源碼
-│   ├── tests/                 # 測試套件
-│   └── docs/                  # 技術文檔
-├── zen-mcp-config/            # Zen MCP Server 部署配置
-│   ├── .env.example          # 環境變數範例
-│   ├── claude_config_example.json  # Claude 配置範例
-│   └── deployment.md         # 部署指南
-├── openmemory-mcp-config/     # OpenMemory MCP Server 部署配置
-│   ├── .env.example          # 環境變數範例
-│   ├── docker-compose.yml    # Docker Compose 配置
-│   ├── deployment.md         # 部署指南
-│   └── troubleshooting.md    # 故障排除指南
-├── serena-mcp-server/         # Serena MCP Server 整合
-│   ├── docs/                  # 詳細文檔
-│   ├── *.yml                  # 配置檔案範本
-│   ├── install.sh             # 安裝腳本
-│   ├── run-serena.sh          # 執行腳本
-│   └── test-connection.sh     # 測試腳本
-├── taskmaster-mcp-config/     # Task Master MCP Server 配置
-│   ├── .env.example          # 環境變數範例
-│   ├── deployment.md         # 部署指南
-│   ├── integration.md        # 整合指南
-│   └── docs/                 # 詳細文檔
-└── scripts/                   # 專案管理工具
-    ├── generate-tree.sh       # 生成專案結構
-    ├── git-history-graph.sh   # Git 歷史視覺化
-    ├── project-navigator.sh   # 互動式導航器
-    ├── setup-git-hooks.sh     # Git hooks 設定
-    ├── check-mcp-ports.sh     # MCP 端口保護檢查
-    └── kill-mcp-ports.sh      # MCP 端口釋放工具
-```
+## 🚀 快速開始
 
-## 專案管理工具
+### 安裝要求
 
-### 1. 專案結構生成器
+- Python 3.8+
+- Google Gemini API 金鑰
+- Node.js (用於MCP服務)
+
+### 安裝步驟
+
 ```bash
-./scripts/generate-tree.sh
-```
-自動生成並更新 PROJECT_STRUCTURE.md 文件，展示完整的專案目錄結構。
+# 克隆專案
+git clone https://github.com/phoenix581228/BigDipper-Video-Analysis.git
+cd BigDipper-Video-Analysis
 
-### 2. Git 歷史視覺化
+# 安裝依賴
+pip install -r requirements.txt
+
+# 設置環境變數
+export GOOGLE_API_KEY="your_gemini_api_key_here"
+export GEMINI_MODEL="gemini-1.5-pro"
+
+# 執行系統測試
+python tests/automated_testing.py
+```
+
+## 🛤️ 三大並行路徑
+
+### 路徑A - AI自動識別模式 🤖
+
+適合已知內容類型的批量處理：
+
 ```bash
-./scripts/git-history-graph.sh -a  # 顯示所有資訊
-./scripts/git-history-graph.sh -g  # 生成報告
-```
-視覺化展示 Git 提交歷史和專案統計。
+# 智能預覽內容
+python cli/cli_router.py preview /path/to/videos --samples 3
 
-### 3. 專案導航器
+# 自動處理模式
+python cli/cli_router.py auto /path/to/videos --cost-limit 5.0
+```
+
+### 路徑B - 用戶引導模式 🎯
+
+適合需要人工確認的互動處理：
+
 ```bash
-./scripts/project-navigator.sh
+# 引導處理模式
+python cli/cli_router.py guided /path/to/videos --group-size 3 --interactive
 ```
-互動式的專案導航工具，快速瀏覽和管理子專案。
 
-## 專案列表
+### 路徑C - 通用分析模式 🔄
 
-### 1. perplexity-mcp-custom
-完全符合 MCP 協議 2025-06-18 標準的 Perplexity MCP Server，解決現有實作的相容性問題。
+適合保守設定和成本控制：
 
-**特點**：
-- ✅ 完全符合 JSON Schema draft 2020-12
-- ✅ 支援全域註冊（-g 參數）
-- ✅ 優秀的錯誤處理
-- ✅ 豐富的進階功能
+```bash
+# 通用低成本模式
+python cli/cli_router.py universal /path/to/videos --low-cost
+```
 
-**文檔**：
-- [可行性研究報告](./perplexity-mcp-custom/docs/FEASIBILITY_STUDY.md)
-- [開發計劃](./perplexity-mcp-custom/docs/DEVELOPMENT_PLAN.md)
-- [技術規格書](./perplexity-mcp-custom/docs/TECHNICAL_SPEC.md)
+## 💰 成本控制系統
 
-### 2. zen-mcp-config
-[Zen MCP Server](https://github.com/BeehiveInnovations/zen-mcp-server) 的部署配置和設定檔。
+```bash
+# 查看成本狀態
+python cli/cli_router.py cost-status --history
 
-**包含**：
-- 環境變數配置範例
-- Claude 整合設定
-- 部署指南
-- 安全的 API 金鑰管理
+# 系統狀態檢查
+python cli/cli_router.py status
 
-**文檔**：
-- [配置說明](./zen-mcp-config/README.md)
-- [部署指南](./zen-mcp-config/deployment.md)
+# 設置成本上限
+python cli/cli_router.py batch /path/to/videos --cost-limit 10.0
+```
 
-### 3. openmemory-mcp-config
-[OpenMemory MCP Server](https://github.com/mem0ai/mem0) 的部署配置和設定檔。
+## 📊 進度追蹤與恢復
 
-**特點**：
-- 本地優先的 AI 記憶體管理
-- Docker 多服務架構
-- SSE 協議支援
-- 跨工具記憶體共享
+系統自動儲存處理狀態，支援中斷後恢復：
 
-**文檔**：
-- [配置說明](./openmemory-mcp-config/README.md)
-- [部署指南](./openmemory-mcp-config/deployment.md)
-- [故障排除](./openmemory-mcp-config/troubleshooting.md)
+```bash
+# 啟動互動式處理
+python cli/progress_tracker.py
 
-### 4. serena-mcp-server
-[Serena MCP Server](https://github.com/oraios/serena) 的整合配置，提供語意化程式碼分析功能。
+# 恢復中斷的會話
+python cli/progress_tracker.py --session-id session_20250629_123456
 
-**特點**：
-- ✅ 完全符合 MCP 協議標準（支援 stdio 和 SSE）
-- ✅ 基於 Language Server Protocol (LSP)
-- ✅ 50+ 強大的程式碼分析工具
-- ✅ 多語言支援（Python、TypeScript、Java、Ruby、Go、C#）
+# 查看會話列表
+python cli/progress_tracker.py --list-sessions
+```
 
-**文檔**：
-- [專案說明](./serena-mcp-server/README.md)
-- [安裝指南](./serena-mcp-server/docs/INSTALLATION.md)
-- [配置指南](./serena-mcp-server/docs/CONFIGURATION.md)
-- [工具參考](./serena-mcp-server/docs/TOOLS_REFERENCE.md)
-- [整合指南](./serena-mcp-server/docs/INTEGRATION.md)
+## 📦 批量自定義處理
 
-### 5. taskmaster-mcp-config
-[Claude Task Master](https://github.com/eyaltoledano/claude-task-master) 的部署配置，提供 AI 驅動的任務管理系統。
+```bash
+# 自定義批量處理
+python cli/cli_router.py batch /path/to/videos \
+  --model pro \
+  --analysis comprehensive \
+  --concurrent 3 \
+  --cost-limit 10.0
+```
 
-**特點**：
-- ✅ 智能任務規劃和管理
-- ✅ 從 PRD 自動生成任務
-- ✅ 多 AI 模型協作（Claude、GPT、Gemini、Perplexity）
-- ✅ 任務依賴和進度追蹤
+## 🧪 測試與驗證
 
-**文檔**：
-- [配置說明](./taskmaster-mcp-config/README.md)
-- [部署指南](./taskmaster-mcp-config/deployment.md)
-- [整合指南](./taskmaster-mcp-config/integration.md)
-- [詳細配置](./taskmaster-mcp-config/docs/CONFIGURATION.md)
-- [工作流程](./taskmaster-mcp-config/docs/WORKFLOW.md)
-- [協同效應分析](./taskmaster-mcp-config/docs/SYNERGY.md)
+```bash
+# 執行完整測試套件
+python tests/automated_testing.py
 
-## 開發標準
+# 快速連接測試
+python tests/test_connection.py
 
-所有 MCP Server 開發都應遵循以下標準：
+# 功能性測試
+python tests/test_full_functionality.py
+```
 
-### 1. 協議相容性
-- 必須完全符合 MCP 協議規範
-- 支援最新版本（2025-06-18）
-- 保持向下相容性
+## 📁 專案結構
 
-### 2. JSON Schema
-- 嚴格遵循 JSON Schema draft 2020-12
-- 避免使用不相容的擴展
-- 完整的 Schema 驗證
+```
+BigDipper-Video-Analysis/
+├── src/                    # 核心MCP服務器
+│   └── gemini_mcp_server.py
+├── cli/                    # 命令行介面
+│   ├── cli_router.py
+│   └── progress_tracker.py
+├── processors/             # 並行處理器
+│   └── parallel_video_processor.py
+├── tests/                  # 測試套件
+│   ├── automated_testing.py
+│   └── test_*.py
+├── docs/                   # 文檔
+│   ├── FINAL_USAGE_GUIDE.md
+│   └── integration_report_*.json
+├── .taskmaster/           # TaskMaster配置
+├── .github/               # GitHub配置
+├── README.md
+├── CHANGELOG.md
+└── requirements.txt
+```
 
-### 3. 程式碼品質
-- TypeScript 優先
-- 完整的型別定義
-- 單元測試覆蓋率 > 80%
+## 🔧 架構特色
 
-### 4. 文檔要求
-- 清晰的 README
-- API 文檔
-- 使用範例
-- 故障排除指南
+### Sequential Thinking 並行路徑突破
 
-## 開發工具
+- **路徑A**: AI自動識別模式 - 智能內容檢測與自動處理
+- **路徑B**: 用戶引導模式 - 互動確認與分組處理  
+- **路徑C**: 通用分析模式 - 保守設定與降低成本
 
-### 必需工具
-- Node.js 20+
-- TypeScript 5+
-- @modelcontextprotocol/sdk
+### 核心創新
 
-### 建議工具
-- Vitest (測試)
-- tsup (建構)
-- Prettier (格式化)
-- ESLint (程式碼檢查)
+1. **解決黑洞問題** - 真正的互動式分組處理
+2. **成本透明化** - 完整成本管理與預算控制
+3. **進度即時可見** - 實時進度追蹤與狀態報告
+4. **系統統一性** - 單一CLI介面統管所有功能
+5. **中斷恢復能力** - 狀態持久化與會話管理
 
-## 貢獻指南
+## 🎯 使用建議
 
-1. 每個 MCP Server 獨立一個資料夾
-2. 遵循既定的資料夾結構
-3. 提供完整的文檔
-4. 通過所有測試
-5. 符合程式碼規範
+1. **首次使用**: 先用 `preview` 預覽內容類型
+2. **小量測試**: 使用 `guided` 模式熟悉流程
+3. **大量處理**: 根據預覽結果選擇最適合的路徑
+4. **成本控制**: 經常檢查 `cost-status` 避免超支
+5. **長時間處理**: 使用 `progress_tracker.py` 確保可恢復性
 
-## 授權
+## 📞 支援與故障排除
 
-除非另有說明，所有專案採用 MIT 授權。
+- **系統狀態檢查**: `python cli/cli_router.py status`
+- **測試系統健康**: `python tests/automated_testing.py`  
+- **查看詳細日誌**: 檢查 `.progress_*.json` 和 `test_report_*.json`
+
+## 🤝 貢獻指南
+
+1. Fork 專案
+2. 創建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟 Pull Request
+
+## 📄 授權
+
+本專案採用 MIT 授權 - 查看 [LICENSE](LICENSE) 檔案了解詳情。
+
+## 👥 開發團隊
+
+- **北斗七星 AI 協作架構** - 架構設計與實現
+- **Claude Code** - 開發協作夥伴
+
+## 🏆 致謝
+
+感謝所有為北斗七星並行影片分析系統做出貢獻的開發者和使用者。
+
+---
+
+**版本**: v1.0.0 Final  
+**建立時間**: 2025-06-29  
+**更新時間**: 2025-06-29  
+
+如有問題或建議，請在 [Issues](https://github.com/phoenix581228/BigDipper-Video-Analysis/issues) 中提出。

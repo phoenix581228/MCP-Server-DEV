@@ -1,0 +1,82 @@
+{
+  "session_id": "test_20250629_185006",
+  "timestamp": "2025-06-29T18:50:07.306245",
+  "summary": {
+    "total_tests": 10,
+    "passed": 10,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "環境檢查",
+      "success": true,
+      "message": "測試通過",
+      "duration": 2.0083010895177722e-05,
+      "timestamp": "2025-06-29T18:50:06.892441"
+    },
+    {
+      "test_name": "MCP Server 導入",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.409592000010889,
+      "timestamp": "2025-06-29T18:50:07.302040"
+    },
+    {
+      "test_name": "新工具註冊",
+      "success": true,
+      "message": "測試通過",
+      "duration": 1.8749851733446121e-06,
+      "timestamp": "2025-06-29T18:50:07.302050"
+    },
+    {
+      "test_name": "智能預覽功能",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.00047491700388491154,
+      "timestamp": "2025-06-29T18:50:07.302528"
+    },
+    {
+      "test_name": "並行分析功能",
+      "success": true,
+      "message": "測試通過",
+      "duration": 1.5830155462026596e-06,
+      "timestamp": "2025-06-29T18:50:07.302533"
+    },
+    {
+      "test_name": "CLI路由器",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.002243208000436425,
+      "timestamp": "2025-06-29T18:50:07.304778"
+    },
+    {
+      "test_name": "成本控制",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.00014349998673424125,
+      "timestamp": "2025-06-29T18:50:07.304925"
+    },
+    {
+      "test_name": "進度追蹤",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.0010759580181911588,
+      "timestamp": "2025-06-29T18:50:07.306004"
+    },
+    {
+      "test_name": "狀態持久化",
+      "success": true,
+      "message": "測試通過",
+      "duration": 0.00022404099581763148,
+      "timestamp": "2025-06-29T18:50:07.306232"
+    },
+    {
+      "test_name": "錯誤處理",
+      "success": true,
+      "message": "測試通過",
+      "duration": 7.4169947765767574e-06,
+      "timestamp": "2025-06-29T18:50:07.306242"
+    }
+  ]
+}
