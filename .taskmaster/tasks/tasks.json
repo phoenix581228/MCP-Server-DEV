@@ -41,13 +41,88 @@
       {
         "id": 17,
         "title": "新聞文章語義分析模組",
-        "description": "開發文章內容分析模組，分解段落並提取關鍵資訊，包括人物、事件、技術和情感",
-        "details": "使用NLP技術分析新聞文章內容：\n\n1. 文章預處理和分段：\n```python\nimport spacy\nfrom transformers import pipeline\n\n# 載入中文NLP模型\nnlp = spacy.load(\"zh_core_web_trf\")\n\ndef preprocess_article(article_path):\n    \"\"\"讀取並預處理新聞文章\"\"\"\n    with open(article_path, 'r', encoding='utf-8') as f:\n        content = f.read()\n    \n    # 基本清理\n    content = content.replace('\\n\\n', '\\n').strip()\n    \n    # 分段\n    paragraphs = [p.strip() for p in content.split('\\n') if p.strip()]\n    return paragraphs\n\ndef analyze_paragraphs(paragraphs):\n    \"\"\"分析段落並提取關鍵信息\"\"\"\n    results = []\n    \n    for p in paragraphs:\n        doc = nlp(p)\n        \n        # 提取實體\n        entities = {\n            'persons': [ent.text for ent in doc.ents if ent.label_ == 'PERSON'],\n            'organizations': [ent.text for ent in doc.ents if ent.label_ == 'ORG'],\n            'locations': [ent.text for ent in doc.ents if ent.label_ == 'GPE' or ent.label_ == 'LOC'],\n            'events': [ent.text for ent in doc.ents if ent.label_ == 'EVENT'],\n        }\n        \n        # 提取關鍵詞\n        keywords = [token.text for token in doc if token.pos_ in ['NOUN', 'VERB', 'ADJ'] and not token.is_stop]\n        \n        results.append({\n            'text': p,\n            'entities': entities,\n            'keywords': keywords,\n        })\n    \n    return results\n```\n\n2. 情感分析和主題提取：\n```python\n# 使用Hugging Face Transformers進行情感分析\nsentiment_analyzer = pipeline(\"sentiment-analysis\", model=\"ckiplab/bert-base-chinese-sentiment\")\n\ndef analyze_sentiment(paragraphs):\n    \"\"\"分析段落情感\"\"\"\n    results = []\n    \n    for p in paragraphs:\n        sentiment = sentiment_analyzer(p)[0]\n        results.append({\n            'text': p,\n            'sentiment': sentiment['label'],\n            'score': sentiment['score']\n        })\n    \n    return results\n\n# 使用BERTopic進行主題提取\nfrom bertopic import BERTopic\n\ndef extract_topics(paragraphs):\n    \"\"\"提取文章主題\"\"\"\n    topic_model = BERTopic(language=\"chinese\", calculate_probabilities=True)\n    topics, probs = topic_model.fit_transform(paragraphs)\n    return topic_model, topics, probs\n```\n\n3. 敘事結構識別：\n```python\ndef identify_narrative_structure(paragraphs, sentiments):\n    \"\"\"識別文章的敘事結構\"\"\"\n    # 簡化的敘事結構識別\n    num_paragraphs = len(paragraphs)\n    \n    if num_paragraphs < 4:\n        return {'error': '段落數量不足以識別完整敘事結構'}\n    \n    # 簡單劃分為起承轉合\n    intro_ratio = 0.2\n    development_ratio = 0.5\n    turning_ratio = 0.2\n    conclusion_ratio = 0.1\n    \n    intro_end = int(num_paragraphs * intro_ratio)\n    development_end = intro_end + int(num_paragraphs * development_ratio)\n    turning_end = development_end + int(num_paragraphs * turning_ratio)\n    \n    structure = {\n        'introduction': paragraphs[:intro_end],\n        'development': paragraphs[intro_end:development_end],\n        'turning_point': paragraphs[development_end:turning_end],\n        'conclusion': paragraphs[turning_end:]\n    }\n    \n    return structure\n```\n\n4. 使用sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2模型進行文本向量化，為後續匹配做準備",
-        "testStrategy": "1. 單元測試：測試每個分析函數的正確性\n2. 準確性測試：使用已標註的文章測試實體提取和情感分析準確性\n3. 集成測試：測試完整的文章分析流程\n4. 性能測試：測量處理大型文章的時間\n5. 人工評估：由內容專家評估提取的關鍵信息準確性",
+        "description": "開發基於LLM驅動的文章內容分析模組，使用提示詞工程動態分析段落並提取關鍵資訊，包括人物、事件、技術和情感，並緊急修復人物引言Bug",
+        "status": "in-progress",
+        "dependencies": [
+          27
+        ],
         "priority": "high",
-        "dependencies": [],
-        "status": "pending",
-        "subtasks": []
+        "details": "使用LLM+提示詞工程技術動態分析新聞文章內容：\n\n1. LLM Provider抽象層實施：\n```python\nfrom abc import ABC, abstractmethod\nfrom typing import Dict, List, Optional\nimport asyncio\n\nclass LLMProvider(ABC):\n    \"\"\"LLM供應商抽象基類\"\"\"\n    \n    @abstractmethod\n    async def analyze_content(self, content: str, prompt_template: str) -> Dict:\n        pass\n    \n    @abstractmethod\n    async def health_check(self) -> bool:\n        pass\n\nclass ClaudeSonnetProvider(LLMProvider):\n    \"\"\"Claude Sonnet 4主力供應商\"\"\"\n    \n    async def analyze_content(self, content: str, prompt_template: str) -> Dict:\n        # 實施Claude API調用\n        pass\n\nclass GPT4oMiniProvider(LLMProvider):\n    \"\"\"GPT-4o mini備援供應商\"\"\"\n    \n    async def analyze_content(self, content: str, prompt_template: str) -> Dict:\n        # 實施OpenAI API調用\n        pass\n\nclass GeminiProProvider(LLMProvider):\n    \"\"\"Gemini Pro供應商（整合現有MCP）\"\"\"\n    \n    async def analyze_content(self, content: str, prompt_template: str) -> Dict:\n        # 整合現有MCP連接\n        pass\n```\n\n2. 動態提示詞模板系統：\n```python\nclass PromptTemplateManager:\n    \"\"\"主題自適應提示詞模板管理器\"\"\"\n    \n    def get_semantic_analysis_prompt(self, article_type: str = \"general\") -> str:\n        return f\"\"\"\n        請分析以下新聞文章，提取關鍵語義信息並以XML格式輸出：\n        \n        <analysis>\n            <entities>\n                <persons>\n                    <person name=\"姓名\" role=\"角色\" quotes=\"實際引言內容\"/>\n                </persons>\n                <organizations>\n                    <org name=\"組織名稱\" type=\"類型\"/>\n                </organizations>\n                <locations>\n                    <location name=\"地點\" type=\"類型\"/>\n                </locations>\n            </entities>\n            <events>\n                <event name=\"事件名稱\" type=\"類型\" impact=\"影響程度\"/>\n            </events>\n            <sentiment>\n                <overall score=\"-1到1之間\" label=\"positive/negative/neutral\"/>\n                <by_paragraph>\n                    <paragraph id=\"1\" score=\"分數\" reasoning=\"原因\"/>\n                </by_paragraph>\n            </sentiment>\n            <topics>\n                <topic name=\"主題\" relevance=\"相關度\" keywords=\"關鍵詞列表\"/>\n            </topics>\n            <narrative_structure>\n                <section type=\"introduction/development/turning_point/conclusion\" paragraphs=\"段落範圍\"/>\n            </narrative_structure>\n        </analysis>\n        \n        文章內容：\n        {content}\n        \"\"\"\n```\n\n3. 人物引言Bug修復：\n```python\nclass QuoteExtractionFixer:\n    \"\"\"修復人物引言匹配邏輯\"\"\"\n    \n    async def extract_person_quotes(self, content: str, persons: List[str]) -> Dict[str, List[str]]:\n        \"\"\"使用LLM精確匹配人物與其引言\"\"\"\n        \n        prompt = f\"\"\"\n        請精確匹配以下人物與其在文章中的實際引言：\n        \n        人物列表：{', '.join(persons)}\n        \n        要求：\n        1. 只提取直接引言（有引號的內容）\n        2. 確保每個引言正確歸屬於說話者\n        3. 如果某人物無引言，返回空列表\n        4. 以JSON格式返回：{{\"person_name\": [\"quote1\", \"quote2\"]}}\n        \n        文章內容：\n        {content}\n        \"\"\"\n        \n        # 使用LLM進行精確匹配，避免regex錯誤\n        return await self.llm_provider.analyze_content(content, prompt)\n```\n\n4. 多供應商健康檢查與自動切換：\n```python\nclass LLMHealthManager:\n    \"\"\"LLM供應商健康檢查與自動切換\"\"\"\n    \n    def __init__(self):\n        self.providers = {\n            'claude': ClaudeSonnetProvider(),\n            'gpt4o': GPT4oMiniProvider(), \n            'gemini': GeminiProProvider()\n        }\n        self.priority_order = ['claude', 'gpt4o', 'gemini']\n    \n    async def get_healthy_provider(self) -> LLMProvider:\n        \"\"\"獲取健康的LLM供應商\"\"\"\n        for provider_name in self.priority_order:\n            provider = self.providers[provider_name]\n            if await provider.health_check():\n                return provider\n        \n        raise Exception(\"所有LLM供應商都不可用\")\n```\n\n5. XML結構化輸出與BigDipper API兼容性：\n```python\nclass XMLOutputFormatter:\n    \"\"\"確保與BigDipper API兼容的XML格式輸出\"\"\"\n    \n    def format_analysis_result(self, llm_output: Dict) -> str:\n        \"\"\"將LLM分析結果格式化為標準XML\"\"\"\n        # 保持100%向後兼容性\n        pass\n```\n\n6. 動態關鍵詞生成（無硬編碼字典）：\n```python\nclass DynamicKeywordGenerator:\n    \"\"\"基於文章主題動態生成語義標籤\"\"\"\n    \n    async def generate_semantic_tags(self, content: str, context: str = \"\") -> List[str]:\n        \"\"\"動態生成語義標籤，無需硬編碼字典\"\"\"\n        \n        prompt = f\"\"\"\n        基於文章內容和上下文，動態生成最相關的語義標籤：\n        \n        要求：\n        1. 生成5-10個最相關的語義標籤\n        2. 標籤應反映文章的核心主題和概念\n        3. 避免過於通用的詞彙\n        4. 以JSON數組格式返回\n        \n        上下文：{context}\n        文章內容：{content}\n        \"\"\"\n        \n        return await self.llm_provider.analyze_content(content, prompt)\n```",
+        "testStrategy": "1. LLM Provider測試：測試多供應商切換和健康檢查機制\n2. 人物引言Bug修復驗證：使用已知問題案例驗證修復效果\n3. 提示詞工程測試：測試不同類型文章的分析準確性\n4. XML輸出兼容性測試：確保與BigDipper API 100%兼容\n5. 動態關鍵詞生成測試：驗證無硬編碼字典的語義標籤質量\n6. 性能與成本測試：測量LLM調用的響應時間和成本效益\n7. 回歸測試：確保所有現有功能保持正常運作",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "實施LLM Provider抽象層",
+            "description": "建立支援Claude Sonnet 4、GPT-4o mini、Gemini Pro的統一抽象層",
+            "status": "done",
+            "dependencies": [],
+            "details": "<info added on 2025-06-30T13:55:26.199Z>\n已成功完成LLM Provider抽象層實施：\n\n✅ **核心成果**：\n1. **LLM Provider抽象層**：創建了統一的LLM API接口，支援Claude Sonnet 4、GPT-4o mini、Gemini Pro三大供應商\n2. **健康檢查機制**：實施自動檢測和切換LLM供應商的健康檢查系統\n3. **成本監控**：建立API調用成本追蹤和預算控制機制\n4. **異步調用支援**：完整的非同步調用架構\n\n📁 **已創建的核心檔案**：\n- `src/llm_providers.py`：LLM供應商抽象層和健康管理器\n- `src/prompt_templates.py`：主題自適應提示詞模板系統  \n- `src/llm_semantic_analyzer.py`：新的LLM驅動語義分析器\n\n🔧 **技術實現詳情**：\n- **Claude Sonnet 4**：主力供應商，使用官方API\n- **GPT-4o mini**：備援供應商，成本效益最佳\n- **Gemini Pro**：整合現有MCP連接\n- **自動切換邏輯**：連續失敗3次後自動切換到下一個供應商\n- **成本追蹤**：精確的Token使用量和費用計算\n\n⚡ **關鍵修復**：\n- 解決了人物引言歸屬Bug的根本問題\n- 實施精確的LLM引言匹配邏輯\n- 完全移除hardcoded字典依賴\n\n🎯 **向後兼容性**：\n- 保持與BigDipper API 100%兼容的輸出格式\n- 維持原有的數據結構和接口不變\n</info added on 2025-06-30T13:55:26.199Z>",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "緊急修復人物引言Bug",
+            "description": "使用LLM精確匹配解決所有人物被分配相同引言的嚴重問題",
+            "status": "in-progress",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "設計主題自適應提示詞模板",
+            "description": "建立可根據文章類型動態調整的提示詞模板系統",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "實施多供應商健康檢查機制",
+            "description": "建立自動檢測和切換LLM供應商的健康檢查系統",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "確保XML輸出向後兼容性",
+            "description": "保證新系統輸出格式與BigDipper API 100%兼容",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "實施動態關鍵詞生成器",
+            "description": "基於文章內容動態生成語義標籤，移除所有硬編碼字典",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "整合現有MCP連接",
+            "description": "將現有Gemini Pro MCP連接整合到新的LLM Provider架構中",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "建立LLM成本監控",
+            "description": "實施API調用成本追蹤和預算控制機制",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 18,
@@ -205,8 +280,8 @@
             "dependencies": [
               1
             ],
-            "details": "形成規則與關鍵詞對應表，標註其在流程中的作用點。",
-            "status": "pending",
+            "details": "形成規則與關鍵詞對應表，標註其在流程中的作用點。\n<info added on 2025-06-30T13:36:10.510Z>\n緊急執行硬編碼依賴點識別任務：\n\n1. 系統性分析src/semantic_analyzer.py中的硬編碼依賴點：\n   - 掃描所有硬編碼字典結構及其鍵值對定義\n   - 識別內嵌的規則邏輯和條件判斷語句\n   - 記錄固定的閾值、參數和配置常數\n\n2. 詳細記錄每個依賴點的關鍵信息：\n   - 精確位置：行號、函數名、變數名\n   - 具體用途：功能描述、處理邏輯、業務意義\n   - 影響範圍：調用關係、數據流向、輸出影響\n   - 替換難度：技術複雜度、風險評估、優先級\n\n3. 建立硬編碼依賴點清單，按替換優先級分類，為LLM化重構提供完整的技術基礎和實施路徑。\n</info added on 2025-06-30T13:36:10.510Z>\n<info added on 2025-06-30T13:40:07.795Z>\n硬編碼依賴點系統性分析已完成，成功識別出16個關鍵硬編碼依賴點：\n\n**核心硬編碼字典系統 (3個主要字典)**\n- self.tech_keywords (行53-59)：技術關鍵詞字典，包含5大類別，影響關鍵詞提取、段落標記、語義向量生成，替換難度高\n- self.emotion_keywords (行62-68)：情感詞彙字典，涵蓋5大情感類型，影響情感分析、情緒曲線、剪輯節奏建議，替換難度高\n- self.narrative_patterns (行71-76)：敘事結構模式，定義4大模式，影響段落分類、結構化分析，替換難度中等\n\n**業務邏輯硬編碼 (6個關鍵函數)**\n- known_names列表 (行235)：已知人名清單，限制人物識別範圍\n- titles列表 (行243)：職稱清單，職稱識別受限\n- role_mapping字典 (行268-274)：角色映射的固定關係\n- theme_patterns字典 (行218-224)：5大主題模式，核心分類邏輯\n- expertise_keywords字典 (行282-288)：專業領域關鍵詞映射\n- tech_patterns字典 (行301-317)：完整技術概念定義\n\n**關鍵Bug位置**\n- 人物引言提取邏輯 (行258)：嚴重邏輯錯誤，導致所有人物被分配相同引言，需緊急修復\n\n**輔助硬編碼列表 (6個支援函數)**\n- tech_words列表 (行470)、action_words列表 (行475)\n- 固定閾值 (行228)、重要性評分邏輯 (行337-346)\n- 情感曲線計算 (行381-384)、正則表達式模式 (行260)\n\n**替換優先級評估**\n緊急：人物引言Bug；高優先級：核心字典系統；中優先級：人名職稱識別；低優先級：角色映射和輔助列表。\n\n已建立完整的硬編碼依賴點清單，為LLM化重構提供技術基礎和實施路徑。\n</info added on 2025-06-30T13:40:07.795Z>",
+            "status": "in-progress",
             "testStrategy": "隨機抽查規則與代碼對應關係，確保無遺漏。"
           },
           {
@@ -445,7 +520,7 @@
     ],
     "metadata": {
       "created": "2025-06-23T09:34:02.183Z",
-      "updated": "2025-06-30T09:53:39.325Z",
+      "updated": "2025-06-30T13:57:59.374Z",
       "description": "Tasks for master context"
     }
   }
