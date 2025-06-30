@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import google.generativeai as genai
@@ -1365,16 +1366,19 @@ async def analyze_single_video(video_path: str, analysis_prompt: str) -> dict:
         # 清理上傳的檔案
         genai.delete_file(video_file.name)
         
-        # 嘗試解析 JSON 回應，如果失敗則返回文本
-        try:
-            return json.loads(response.text)
-        except json.JSONDecodeError:
-            return {
-                "summary": response.text,
-                "scenes": [],
-                "technical_notes": {},
-                "production_notes": "原始分析文本格式"
-            }
+        # 使用智能JSON提取器解析回應
+        from .json_extractor import IntelligentJSONExtractor
+        
+        extractor = IntelligentJSONExtractor()
+        result = extractor.extract_json_from_response(response.text)
+        
+        # 添加處理元數據
+        if "_metadata" not in result:
+            result["_metadata"] = {}
+        result["_metadata"]["video_file"] = video_path
+        result["_metadata"]["analysis_timestamp"] = datetime.now().isoformat()
+        
+        return result
             
     except Exception as e:
         logger.error(f"Error analyzing video {video_path}: {e}")

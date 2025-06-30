@@ -2,850 +2,450 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
-        "title": "設計標準化測試框架",
-        "description": "建立一個標準化的測試框架，用於評估所有六個MCP Server和原生Claude Code的性能",
-        "details": "開發一個模塊化的測試框架，支持以下功能：\n1. 測試用例註冊和管理系統\n2. 性能指標收集模塊（響應時間、CPU使用率、記憶體消耗等）\n3. 結果記錄和匯出功能（JSON、CSV格式）\n4. 可配置的測試參數\n\n技術選擇：\n- Python 3.11+作為主要開發語言\n- pytest 7.4.0+作為測試框架基礎\n- psutil 5.9.5+用於系統資源監控\n- pandas 2.1.0+用於數據處理和分析\n- matplotlib/seaborn最新版用於數據可視化\n\n框架應支持同步和異步測試，並能夠模擬不同的用戶負載情況。",
-        "testStrategy": "1. 單元測試：確保框架各組件正常工作\n2. 集成測試：驗證框架能夠正確收集和處理所有必要的性能指標\n3. 模擬測試：使用模擬數據驗證框架的數據處理和報告生成功能\n4. 手動測試：確認框架的可用性和配置靈活性",
+        "id": 14,
+        "title": "JSON解析器開發",
+        "description": "開發專用解析器解決場記分析JSON中的字串包裝問題，將嵌套字串轉換為結構化數據",
+        "details": "使用Python 3.10+開發JSON解析器，處理特殊的嵌套字串格式。\n\n1. 使用json和re模組處理複雜JSON結構\n2. 實現遞迴解析算法處理多層嵌套\n3. 處理邊緣情況如轉義字符和特殊格式\n4. 代碼示例:\n```python\nimport json\nimport re\n\ndef parse_nested_json(json_str):\n    # 處理可能的嵌套JSON字串問題\n    try:\n        # 首次解析\n        data = json.loads(json_str)\n        \n        # 檢查是否有嵌套字串需要進一步解析\n        if isinstance(data, dict):\n            for key, value in data.items():\n                if isinstance(value, str) and value.strip().startswith('{') and value.strip().endswith('}'): \n                    try:\n                        data[key] = json.loads(value)\n                    except json.JSONDecodeError:\n                        # 處理可能的轉義問題\n                        cleaned_str = re.sub(r'\\\\([^\\\\])', r'\\1', value)\n                        try:\n                            data[key] = json.loads(cleaned_str)\n                        except:\n                            pass  # 保持原始值\n        return data\n    except json.JSONDecodeError as e:\n        print(f\"JSON解析錯誤: {e}\")\n        return None\n```\n\n使用pandas 2.0+進行數據處理和轉換，確保所有39支影片的數據能夠被正確解析和結構化。",
+        "testStrategy": "1. 單元測試：使用pytest測試解析器在各種JSON格式下的表現\n2. 集成測試：使用實際的場記分析JSON文件進行測試\n3. 邊緣情況測試：測試特殊字符、極長字串、多層嵌套等情況\n4. 性能測試：測量大型JSON文件(7.6GB數據)的解析時間和內存使用\n5. 驗證測試：確保解析後的數據結構與預期一致",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "場記數據標準化模組",
+        "description": "設計並實現標準化的影片場記數據結構，提取關鍵字段並建立數據驗證機制",
+        "details": "使用Python和pandas設計標準化數據結構：\n\n1. 定義標準化數據模型：\n```python\nfrom dataclasses import dataclass\nfrom datetime import timedelta\nfrom typing import List, Optional\n\n@dataclass\nclass VideoScene:\n    timestamp: timedelta  # 場景開始時間\n    duration: timedelta   # 場景持續時間\n    description: str      # 場景描述\n    keywords: List[str]   # 關鍵詞\n    technical_params: dict  # 技術參數(如無人機高度、速度等)\n    importance_score: float  # 重要性評分\n    \n@dataclass\nclass VideoMetadata:\n    video_id: str\n    filename: str\n    duration: timedelta\n    resolution: str\n    creation_date: str\n    location: Optional[str] = None\n    \n@dataclass\nclass VideoRecord:\n    metadata: VideoMetadata\n    scenes: List[VideoScene]\n```\n\n2. 數據提取和轉換函數：\n```python\ndef extract_metadata(raw_data):\n    # 從原始JSON提取元數據\n    # ...\n\ndef extract_scenes(raw_data):\n    # 從原始JSON提取場景信息\n    # ...\n\ndef standardize_video_record(raw_data):\n    metadata = extract_metadata(raw_data)\n    scenes = extract_scenes(raw_data)\n    return VideoRecord(metadata=metadata, scenes=scenes)\n```\n\n3. 使用pydantic 2.0+進行數據驗證，確保所有字段符合預期格式和範圍\n4. 實現批量處理功能，能夠一次性處理所有39支影片的數據",
+        "testStrategy": "1. 單元測試：測試每個數據提取和轉換函數\n2. 數據完整性測試：確保沒有關鍵字段丟失\n3. 數據一致性測試：確保所有影片的數據結構一致\n4. 驗證測試：使用pydantic驗證所有數據符合預期格式\n5. 邊緣情況測試：測試缺失數據、異常值等情況的處理",
+        "priority": "high",
+        "dependencies": [
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "數據導出與完整性檢查系統",
+        "description": "開發數據導出功能和完整性檢查機制，確保數據可用性和完整性",
+        "details": "實現多格式數據導出和完整性檢查：\n\n1. 數據導出功能：\n```python\ndef export_to_json(video_records, output_path):\n    \"\"\"將標準化數據導出為JSON格式\"\"\"\n    import json\n    from dataclasses import asdict\n    \n    # 轉換dataclass為dict\n    records_dict = [asdict(record) for record in video_records]\n    \n    # 處理不可序列化的對象(如timedelta)\n    def serialize_custom(obj):\n        if isinstance(obj, timedelta):\n            return str(obj)\n        raise TypeError(f\"Object of type {type(obj)} is not JSON serializable\")\n    \n    with open(output_path, 'w', encoding='utf-8') as f:\n        json.dump(records_dict, f, ensure_ascii=False, indent=2, default=serialize_custom)\n\ndef export_to_csv(video_records, output_path):\n    \"\"\"將標準化數據導出為CSV格式\"\"\"\n    import pandas as pd\n    \n    # 將數據轉換為扁平結構\n    rows = []\n    for record in video_records:\n        for scene in record.scenes:\n            row = {\n                'video_id': record.metadata.video_id,\n                'filename': record.metadata.filename,\n                'timestamp': str(scene.timestamp),\n                'duration': str(scene.duration),\n                'description': scene.description,\n                'keywords': ','.join(scene.keywords),\n                'importance_score': scene.importance_score\n                # 其他字段...\n            }\n            rows.append(row)\n    \n    df = pd.DataFrame(rows)\n    df.to_csv(output_path, index=False, encoding='utf-8')\n```\n\n2. 數據完整性檢查：\n```python\ndef check_data_integrity(video_records):\n    \"\"\"檢查數據完整性並返回報告\"\"\"\n    report = {\n        'total_videos': len(video_records),\n        'videos_with_issues': 0,\n        'issues': []\n    }\n    \n    for record in video_records:\n        issues = []\n        \n        # 檢查元數據完整性\n        if not record.metadata.video_id or not record.metadata.filename:\n            issues.append('缺少關鍵元數據')\n            \n        # 檢查場景數據\n        if not record.scenes:\n            issues.append('沒有場景數據')\n        \n        # 檢查時間戳連續性\n        timestamps = [scene.timestamp for scene in record.scenes]\n        if len(timestamps) > 1:\n            for i in range(1, len(timestamps)):\n                if timestamps[i] < timestamps[i-1]:\n                    issues.append(f'時間戳不連續: {timestamps[i-1]} -> {timestamps[i]}')\n        \n        if issues:\n            report['videos_with_issues'] += 1\n            report['issues'].append({\n                'video_id': record.metadata.video_id,\n                'issues': issues\n            })\n    \n    return report\n```\n\n3. 使用pandas和numpy進行數據統計分析，生成數據概覽報告\n4. 實現數據可視化功能，使用matplotlib或seaborn生成數據分布圖表",
+        "testStrategy": "1. 功能測試：測試各種格式的導出功能\n2. 數據完整性測試：驗證導出數據的完整性\n3. 邊緣情況測試：測試大型數據集、特殊字符等情況\n4. 集成測試：測試完整的數據處理流程\n5. 用戶接受測試：確保導出的數據格式符合後續處理需求",
+        "priority": "medium",
+        "dependencies": [
+          15
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "新聞文章語義分析模組",
+        "description": "開發文章內容分析模組，分解段落並提取關鍵資訊，包括人物、事件、技術和情感",
+        "details": "使用NLP技術分析新聞文章內容：\n\n1. 文章預處理和分段：\n```python\nimport spacy\nfrom transformers import pipeline\n\n# 載入中文NLP模型\nnlp = spacy.load(\"zh_core_web_trf\")\n\ndef preprocess_article(article_path):\n    \"\"\"讀取並預處理新聞文章\"\"\"\n    with open(article_path, 'r', encoding='utf-8') as f:\n        content = f.read()\n    \n    # 基本清理\n    content = content.replace('\\n\\n', '\\n').strip()\n    \n    # 分段\n    paragraphs = [p.strip() for p in content.split('\\n') if p.strip()]\n    return paragraphs\n\ndef analyze_paragraphs(paragraphs):\n    \"\"\"分析段落並提取關鍵信息\"\"\"\n    results = []\n    \n    for p in paragraphs:\n        doc = nlp(p)\n        \n        # 提取實體\n        entities = {\n            'persons': [ent.text for ent in doc.ents if ent.label_ == 'PERSON'],\n            'organizations': [ent.text for ent in doc.ents if ent.label_ == 'ORG'],\n            'locations': [ent.text for ent in doc.ents if ent.label_ == 'GPE' or ent.label_ == 'LOC'],\n            'events': [ent.text for ent in doc.ents if ent.label_ == 'EVENT'],\n        }\n        \n        # 提取關鍵詞\n        keywords = [token.text for token in doc if token.pos_ in ['NOUN', 'VERB', 'ADJ'] and not token.is_stop]\n        \n        results.append({\n            'text': p,\n            'entities': entities,\n            'keywords': keywords,\n        })\n    \n    return results\n```\n\n2. 情感分析和主題提取：\n```python\n# 使用Hugging Face Transformers進行情感分析\nsentiment_analyzer = pipeline(\"sentiment-analysis\", model=\"ckiplab/bert-base-chinese-sentiment\")\n\ndef analyze_sentiment(paragraphs):\n    \"\"\"分析段落情感\"\"\"\n    results = []\n    \n    for p in paragraphs:\n        sentiment = sentiment_analyzer(p)[0]\n        results.append({\n            'text': p,\n            'sentiment': sentiment['label'],\n            'score': sentiment['score']\n        })\n    \n    return results\n\n# 使用BERTopic進行主題提取\nfrom bertopic import BERTopic\n\ndef extract_topics(paragraphs):\n    \"\"\"提取文章主題\"\"\"\n    topic_model = BERTopic(language=\"chinese\", calculate_probabilities=True)\n    topics, probs = topic_model.fit_transform(paragraphs)\n    return topic_model, topics, probs\n```\n\n3. 敘事結構識別：\n```python\ndef identify_narrative_structure(paragraphs, sentiments):\n    \"\"\"識別文章的敘事結構\"\"\"\n    # 簡化的敘事結構識別\n    num_paragraphs = len(paragraphs)\n    \n    if num_paragraphs < 4:\n        return {'error': '段落數量不足以識別完整敘事結構'}\n    \n    # 簡單劃分為起承轉合\n    intro_ratio = 0.2\n    development_ratio = 0.5\n    turning_ratio = 0.2\n    conclusion_ratio = 0.1\n    \n    intro_end = int(num_paragraphs * intro_ratio)\n    development_end = intro_end + int(num_paragraphs * development_ratio)\n    turning_end = development_end + int(num_paragraphs * turning_ratio)\n    \n    structure = {\n        'introduction': paragraphs[:intro_end],\n        'development': paragraphs[intro_end:development_end],\n        'turning_point': paragraphs[development_end:turning_end],\n        'conclusion': paragraphs[turning_end:]\n    }\n    \n    return structure\n```\n\n4. 使用sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2模型進行文本向量化，為後續匹配做準備",
+        "testStrategy": "1. 單元測試：測試每個分析函數的正確性\n2. 準確性測試：使用已標註的文章測試實體提取和情感分析準確性\n3. 集成測試：測試完整的文章分析流程\n4. 性能測試：測量處理大型文章的時間\n5. 人工評估：由內容專家評估提取的關鍵信息準確性",
         "priority": "high",
         "dependencies": [],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "調研並制定標準化測試指標與業界基準",
-            "description": "由Perplexity MCP負責，調查最新的性能測試標準、業界基準和最佳實踐，確定響應時間、CPU/記憶體消耗等核心指標，並制定統一的評估標準。",
-            "dependencies": [],
-            "details": "收集並分析現有MCP Server和AI服務的性能評測方法，彙總可量化的測試指標，形成標準化測試指標文檔。",
-            "status": "pending",
-            "testStrategy": "通過查閱公開文獻、GitHub項目和業界白皮書，整理出可直接應用於本框架的測試指標與基準。"
-          },
-          {
-            "id": 2,
-            "title": "設計模塊化測試框架結構與技術選型",
-            "description": "由Serena MCP負責，根據標準化指標設計框架結構，規劃模塊劃分（用例管理、性能監控、結果記錄等），並確定Python、pytest、psutil、pandas等技術棧的集成方式。",
-            "dependencies": [
-              1
-            ],
-            "details": "設計支持同步/異步測試、可配置參數、用戶負載模擬的框架結構圖與模塊接口規範，並撰寫初步技術文檔。",
-            "status": "pending",
-            "testStrategy": "通過設計審查和技術文檔評審，確保結構合理、可擴展且符合標準指標要求。"
-          },
-          {
-            "id": 3,
-            "title": "實現測試用例註冊、管理與多MCP Server集成",
-            "description": "由Zen MCP負責，開發支持六個MCP Server和原生Claude Code的測試用例註冊、管理與多模型協作測試模塊。",
-            "dependencies": [
-              2
-            ],
-            "details": "實現用例註冊API、用例分組與標籤管理，並支持針對不同MCP Server的自動化測試調度與協作測試場景。",
-            "status": "pending",
-            "testStrategy": "通過單元測試和集成測試，驗證用例註冊、查詢、調度和多模型協作功能的正確性。"
-          },
-          {
-            "id": 4,
-            "title": "開發性能指標收集、結果記錄與匯出模塊",
-            "description": "由OpenMemory MCP負責，實現響應時間、CPU/記憶體消耗等性能數據的自動收集、結果記錄與JSON/CSV格式匯出功能。",
-            "dependencies": [
-              3
-            ],
-            "details": "集成psutil、pandas等庫，實現性能監控、數據持久化與格式化匯出，並支持測試過程中動態記錄。",
-            "status": "pending",
-            "testStrategy": "通過壓力測試和數據一致性檢查，確保性能數據準確、記錄完整且匯出格式正確。"
-          },
-          {
-            "id": 5,
-            "title": "撰寫技術文檔與最佳實踐指引，並建立進度追蹤機制",
-            "description": "由Context7 MCP負責技術文檔與最佳實踐，TaskMaster MCP負責任務規劃與進度追蹤，協同完成框架使用說明、維護手冊和進度管理。",
-            "dependencies": [
-              4
-            ],
-            "details": "整理框架架構、模塊接口、測試流程、常見問題與最佳實踐，並建立進度追蹤表與里程碑管理。",
-            "status": "pending",
-            "testStrategy": "通過內部審查和用戶測試反饋，驗證文檔完整性與可用性，並定期檢查進度追蹤數據。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 2,
-        "title": "開發MCP Server連接介面",
-        "description": "為六個MCP Server開發統一的API連接介面，確保測試框架可以一致地與所有服務器交互",
-        "details": "設計和實現一個統一的連接層，包含：\n1. 抽象基類定義通用介面方法\n2. 為每個MCP Server實現具體的連接類\n3. 錯誤處理和重試機制\n4. 連接池管理以優化性能\n\n技術選擇：\n- Python requests 2.31.0+用於HTTP通信\n- aiohttp 3.8.5+用於異步HTTP請求\n- pydantic 2.4.0+用於數據驗證和序列化\n- tenacity 8.2.3+用於重試邏輯\n\n實現連接超時控制、錯誤日誌記錄，以及連接狀態監控功能。每個MCP Server的連接器應處理其特定的認證和API格式要求。",
-        "testStrategy": "1. 單元測試：測試每個連接器的基本功能\n2. 模擬測試：使用mock服務器測試錯誤處理和重試邏輯\n3. 集成測試：與實際MCP Server進行連接測試\n4. 負載測試：驗證連接池在高並發情況下的性能",
+        "id": 18,
+        "title": "影片場記向量化系統",
+        "description": "開發將影片場記轉換為語義向量的系統，實現多維度特徵提取和語義檢索",
+        "details": "使用sentence-transformers和FAISS實現影片場記向量化：\n\n1. 場記文本向量化：\n```python\nfrom sentence_transformers import SentenceTransformer\nimport numpy as np\nimport faiss\n\n# 載入多語言模型\nmodel = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')\n\ndef vectorize_scene_descriptions(video_records):\n    \"\"\"將場景描述轉換為向量\"\"\"\n    all_scenes = []\n    all_descriptions = []\n    \n    for record in video_records:\n        for scene in record.scenes:\n            all_scenes.append({\n                'video_id': record.metadata.video_id,\n                'timestamp': scene.timestamp,\n                'duration': scene.duration,\n                'description': scene.description,\n                'technical_params': scene.technical_params,\n                'importance_score': scene.importance_score\n            })\n            all_descriptions.append(scene.description)\n    \n    # 批量生成向量\n    vectors = model.encode(all_descriptions, show_progress_bar=True)\n    \n    # 將向量添加到場景數據中\n    for i, scene in enumerate(all_scenes):\n        scene['vector'] = vectors[i]\n    \n    return all_scenes\n```\n\n2. 建立FAISS索引：\n```python\ndef build_faiss_index(scene_vectors):\n    \"\"\"建立FAISS索引用於高效相似度搜索\"\"\"\n    # 提取向量數據\n    vectors = np.array([scene['vector'] for scene in scene_vectors], dtype=np.float32)\n    \n    # 建立索引\n    dimension = vectors.shape[1]  # 向量維度\n    index = faiss.IndexFlatL2(dimension)  # L2距離索引\n    index.add(vectors)\n    \n    return index\n\ndef search_similar_scenes(query_text, index, scene_vectors, top_k=5):\n    \"\"\"搜索與查詢文本最相似的場景\"\"\"\n    # 將查詢文本轉換為向量\n    query_vector = model.encode([query_text])[0].reshape(1, -1).astype(np.float32)\n    \n    # 搜索最相似的向量\n    distances, indices = index.search(query_vector, top_k)\n    \n    # 返回結果\n    results = []\n    for i, idx in enumerate(indices[0]):\n        scene = scene_vectors[idx].copy()\n        scene['similarity_score'] = 1.0 / (1.0 + distances[0][i])  # 轉換距離為相似度分數\n        results.append(scene)\n    \n    return results\n```\n\n3. 多維度特徵提取：\n```python\ndef extract_multidimensional_features(scene_vectors):\n    \"\"\"提取場景的多維度特徵\"\"\"\n    # 使用預訓練模型提取技術、視覺、情感和動作特徵\n    # 這裡使用簡化版本，實際實現可能需要多個專門模型\n    \n    for scene in scene_vectors:\n        # 提取技術特徵 (例如無人機高度、速度等)\n        tech_features = extract_technical_features(scene['technical_params'])\n        \n        # 提取視覺特徵 (基於描述)\n        visual_features = extract_visual_features(scene['description'])\n        \n        # 提取情感特徵\n        sentiment_features = extract_sentiment_features(scene['description'])\n        \n        # 提取動作特徵\n        action_features = extract_action_features(scene['description'])\n        \n        # 合併特徵\n        scene['multidimensional_features'] = {\n            'technical': tech_features,\n            'visual': visual_features,\n            'sentiment': sentiment_features,\n            'action': action_features\n        }\n    \n    return scene_vectors\n```\n\n4. 使用scikit-learn實現降維和聚類，幫助理解場景分布",
+        "testStrategy": "1. 向量質量測試：評估生成向量的質量和語義保留程度\n2. 檢索準確性測試：測試相似場景檢索的準確性\n3. 性能測試：測量向量化和檢索的速度\n4. 集成測試：測試與其他模組的整合\n5. 可視化測試：使用t-SNE或UMAP可視化向量空間，確認語義聚類效果",
         "priority": "high",
         "dependencies": [
-          1
+          15,
+          16
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "設計統一的MCP連接抽象基類",
-            "description": "設計並實現一個抽象基類，定義所有MCP Server連接器需實現的通用API方法，包括初始化、請求發送、錯誤處理、連接狀態監控等。",
-            "dependencies": [],
-            "details": "基於MCP協議和JSON-RPC消息格式，設計統一的連接抽象層，確保所有MCP Server連接器遵循一致的接口規範。需考慮同步與異步HTTP通信、超時控制、錯誤日誌記錄等通用功能。",
-            "status": "pending",
-            "testStrategy": "單元測試抽象基類方法接口，驗證異常處理、超時控制與日誌記錄功能的正確性。"
-          },
-          {
-            "id": 2,
-            "title": "為Zen MCP實現專屬連接器",
-            "description": "根據Zen MCP的API格式與認證要求，實現具體連接類，支持深度分析與多模型協作測試功能。",
-            "dependencies": [
-              1
-            ],
-            "details": "實現Zen MCP連接器，處理其特定的認證流程、API參數格式與回應解析，並集成抽象基類的錯誤處理與重試機制。需支持多模型協作測試場景下的上下文管理。",
-            "status": "pending",
-            "testStrategy": "集成測試Zen MCP連接器，模擬多模型協作請求，驗證認證、錯誤處理與上下文傳遞的正確性。"
-          },
-          {
-            "id": 3,
-            "title": "為Serena MCP與TaskMaster MCP實現專屬連接器",
-            "description": "分別為Serena MCP（編碼實現、項目結構管理）與TaskMaster MCP（任務規劃與進度追蹤）實現具體連接類，滿足各自API與認證需求。",
-            "dependencies": [
-              1
-            ],
-            "details": "根據Serena MCP與TaskMaster MCP的API規範，實現連接器，處理各自的認證、數據格式與錯誤處理。需支持連接池管理以優化多任務並發性能。",
-            "status": "pending",
-            "testStrategy": "針對兩個連接器進行功能與性能測試，驗證多任務並發下的連接池管理與錯誤重試機制。"
-          },
-          {
-            "id": 4,
-            "title": "為Context7 MCP與Perplexity MCP實現專屬連接器",
-            "description": "分別為Context7 MCP（技術文檔查詢、最佳實踐研究）與Perplexity MCP（評測標準、業界基準搜索）實現具體連接類，處理其API與認證特性。",
-            "dependencies": [
-              1
-            ],
-            "details": "根據Context7 MCP與Perplexity MCP的API設計，實現連接器，支持異步HTTP請求與數據驗證，並集成錯誤日誌與狀態監控功能。",
-            "status": "pending",
-            "testStrategy": "模擬文檔查詢與標準搜索場景，驗證異步請求、數據驗證與錯誤日誌記錄的完整性。"
-          },
-          {
-            "id": 5,
-            "title": "為OpenMemory MCP實現專屬連接器並整合測試結果記錄",
-            "description": "實現OpenMemory MCP連接器，支持測試結果記錄與知識管理，並確保與其他MCP連接器的整合性。",
-            "dependencies": [
-              1
-            ],
-            "details": "根據OpenMemory MCP的API與認證要求，實現連接器，支持批量數據寫入、查詢與狀態監控，並與測試框架集成以自動記錄測試結果。",
-            "status": "pending",
-            "testStrategy": "驗證測試結果自動記錄、批量寫入與查詢功能，並測試連接狀態監控與錯誤恢復能力。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 3,
-        "title": "實現功能完整性測試模塊",
-        "description": "開發測試模塊評估各MCP Server的功能完整性，確認是否滿足其設計目標",
-        "details": "為每個MCP Server設計特定的功能測試用例，覆蓋其核心功能：\n\n1. Zen MCP：多模型協作和深度分析能力測試\n2. Serena MCP：編碼輔助和項目管理功能測試\n3. TaskMaster MCP：任務規劃和項目管理能力測試\n4. Context7 MCP：技術文檔和知識庫查詢功能測試\n5. Perplexity MCP：網絡搜索和實時信息獲取測試\n6. OpenMemory MCP：長期記憶和知識管理能力測試\n\n實現功能覆蓋率分析工具，使用標準化的評分系統（0-100）對每個功能點進行評分。\n\n技術選擇：\n- YAML配置文件定義測試用例和預期結果\n- jsonschema 4.19.0+用於驗證API響應\n- coverage.py 7.3.2+用於功能覆蓋率分析",
-        "testStrategy": "1. 功能測試：驗證每個MCP Server的核心功能是否正常工作\n2. 邊界測試：測試極端情況下的功能表現\n3. 負面測試：驗證錯誤輸入處理能力\n4. 交叉驗證：使用不同的測試用例驗證相同功能",
+        "id": 19,
+        "title": "語義匹配算法開發",
+        "description": "開發文本到影片的智能匹配系統，實現多重匹配策略和匹配品質評估",
+        "details": "實現多策略語義匹配算法：\n\n1. 基本匹配函數：\n```python\ndef semantic_matching(article_segments, scene_vectors, faiss_index):\n    \"\"\"實現文本段落到影片場景的語義匹配\"\"\"\n    matches = []\n    \n    for segment in article_segments:\n        # 提取段落文本\n        text = segment['text']\n        \n        # 搜索相似場景\n        similar_scenes = search_similar_scenes(text, faiss_index, scene_vectors, top_k=10)\n        \n        # 記錄匹配結果\n        matches.append({\n            'article_segment': segment,\n            'matched_scenes': similar_scenes\n        })\n    \n    return matches\n```\n\n2. 多重匹配策略：\n```python\ndef direct_matching(article_segments, scene_vectors):\n    \"\"\"直接關鍵詞匹配\"\"\"\n    matches = []\n    \n    for segment in article_segments:\n        keywords = segment.get('keywords', [])\n        matched_scenes = []\n        \n        for scene in scene_vectors:\n            # 計算關鍵詞匹配度\n            matched_keywords = [kw for kw in keywords if kw.lower() in scene['description'].lower()]\n            if matched_keywords:\n                score = len(matched_keywords) / len(keywords) if keywords else 0\n                matched_scenes.append({\n                    'scene': scene,\n                    'matched_keywords': matched_keywords,\n                    'score': score\n                })\n        \n        # 排序並選擇最佳匹配\n        matched_scenes.sort(key=lambda x: x['score'], reverse=True)\n        matches.append({\n            'article_segment': segment,\n            'matched_scenes': matched_scenes[:5]  # 取前5個最佳匹配\n        })\n    \n    return matches\n\ndef contextual_matching(article_segments, scene_vectors, model):\n    \"\"\"上下文感知匹配\"\"\"\n    # 將文章段落轉換為向量\n    segment_texts = [seg['text'] for seg in article_segments]\n    segment_vectors = model.encode(segment_texts)\n    \n    # 將場景描述轉換為向量\n    scene_texts = [scene['description'] for scene in scene_vectors]\n    scene_vectors_encoded = model.encode(scene_texts)\n    \n    matches = []\n    for i, segment in enumerate(article_segments):\n        segment_vector = segment_vectors[i]\n        \n        # 計算與所有場景的相似度\n        similarities = []\n        for j, scene_vector in enumerate(scene_vectors_encoded):\n            # 計算餘弦相似度\n            similarity = np.dot(segment_vector, scene_vector) / (\n                np.linalg.norm(segment_vector) * np.linalg.norm(scene_vector)\n            )\n            similarities.append((j, similarity))\n        \n        # 排序並選擇最佳匹配\n        similarities.sort(key=lambda x: x[1], reverse=True)\n        top_matches = [{\n            'scene': scene_vectors[idx],\n            'similarity': sim\n        } for idx, sim in similarities[:5]]\n        \n        matches.append({\n            'article_segment': segment,\n            'matched_scenes': top_matches\n        })\n    \n    return matches\n```\n\n3. 匹配品質評估：\n```python\ndef evaluate_matching_quality(matches):\n    \"\"\"評估匹配結果的品質\"\"\"\n    evaluation = []\n    \n    for match in matches:\n        segment = match['article_segment']\n        scenes = match['matched_scenes']\n        \n        if not scenes:\n            evaluation.append({\n                'segment': segment['text'][:50] + '...',\n                'quality': 'poor',\n                'reason': '沒有找到匹配場景'\n            })\n            continue\n        \n        # 計算平均相似度分數\n        avg_score = sum(scene.get('similarity_score', 0) for scene in scenes) / len(scenes)\n        \n        # 評估匹配品質\n        if avg_score > 0.8:\n            quality = 'excellent'\n        elif avg_score > 0.6:\n            quality = 'good'\n        elif avg_score > 0.4:\n            quality = 'fair'\n        else:\n            quality = 'poor'\n        \n        evaluation.append({\n            'segment': segment['text'][:50] + '...',\n            'quality': quality,\n            'avg_score': avg_score,\n            'num_matches': len(scenes)\n        })\n    \n    return evaluation\n```\n\n4. 實現混合匹配策略，結合語義相似度、關鍵詞匹配和上下文關聯",
+        "testStrategy": "1. 準確性測試：使用人工標註的匹配結果評估算法準確性\n2. 比較測試：比較不同匹配策略的效果\n3. 穩健性測試：測試算法在不同類型文章和場景下的表現\n4. 性能測試：評估匹配算法的速度和資源消耗\n5. A/B測試：比較不同參數設置下的匹配結果",
         "priority": "high",
         "dependencies": [
-          1,
-          2
+          17,
+          18
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "設計並定義各MCP Server的功能測試用例",
-            "description": "針對Zen、Serena、TaskMaster、Context7、Perplexity、OpenMemory等MCP Server，設計覆蓋其核心功能的測試用例，並以YAML配置文件形式定義測試步驟與預期結果。",
-            "dependencies": [],
-            "details": "根據每個MCP Server的設計目標，梳理其核心功能點，並為每個功能點撰寫具體測試用例，確保測試用例能覆蓋所有關鍵場景。測試用例需結構化存儲於YAML文件，便於後續自動化調用與維護。",
-            "status": "pending",
-            "testStrategy": "人工審查測試用例覆蓋率，並通過靜態分析工具檢查YAML配置的完整性與正確性。"
-          },
-          {
-            "id": 2,
-            "title": "實現API響應驗證與自動化測試框架",
-            "description": "基於jsonschema 4.19.0+，開發自動化測試框架，對各MCP Server的API響應進行結構與內容驗證，確保其符合預期標準。",
-            "dependencies": [
-              1
-            ],
-            "details": "解析YAML測試用例，調用對應MCP Server API，並利用jsonschema對響應進行驗證。異常響應需記錄詳細錯誤信息，便於後續排查與修正。",
-            "status": "pending",
-            "testStrategy": "通過單元測試與集成測試驗證API響應驗證模組的準確性與穩定性。"
-          },
-          {
-            "id": 3,
-            "title": "開發功能覆蓋率分析與評分工具",
-            "description": "集成coverage.py 7.3.2+，實現對測試用例執行情況的覆蓋率分析，並根據標準化評分系統（0-100分）對每個功能點進行自動評分。",
-            "dependencies": [
-              2
-            ],
-            "details": "收集測試執行過程中的覆蓋數據，計算每個MCP Server功能點的覆蓋率，並根據預設評分規則自動生成分數報告，支持導出為結構化數據格式。",
-            "status": "pending",
-            "testStrategy": "對比人工評分與自動評分結果，驗證評分工具的準確性與一致性。"
-          },
-          {
-            "id": 4,
-            "title": "集成測試結果記錄與知識管理模組",
-            "description": "開發測試結果記錄系統，將每次測試的詳細結果、覆蓋率與評分數據存儲於OpenMemory MCP，實現知識積累與可追溯性。",
-            "dependencies": [
-              3
-            ],
-            "details": "設計結構化數據存儲方案，支持查詢歷史測試結果、對比不同版本測試表現，並為後續優化提供依據。",
-            "status": "pending",
-            "testStrategy": "通過查詢接口驗證測試結果的完整性與可追溯性。"
-          },
-          {
-            "id": 5,
-            "title": "制定並持續更新測試標準與業界基準",
-            "description": "由Perplexity MCP負責定期檢索最新功能測試標準與業界最佳實踐，並將相關標準納入測試模塊設計與評分體系。",
-            "dependencies": [
-              4
-            ],
-            "details": "建立自動化檢索流程，定期更新測試標準文檔，確保測試模塊始終符合行業發展趨勢與合規要求。",
-            "status": "pending",
-            "testStrategy": "定期審查測試標準更新情況，並通過專家評審驗證標準的適用性與前瞻性。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 4,
-        "title": "開發性能測試模塊",
-        "description": "實現性能測試模塊，評估各MCP Server的響應速度、資源消耗和穩定性",
-        "details": "設計並實現全面的性能測試模塊，包括：\n\n1. 響應時間測量：首次響應時間、完成時間、思考時間\n2. 資源使用監控：CPU使用率、記憶體消耗、網絡流量\n3. 穩定性測試：長時間運行測試、錯誤恢復能力測試\n4. 並發處理能力：多用戶同時請求的處理能力\n\n技術選擇：\n- locust 2.16.1+用於負載測試\n- prometheus-client 0.17.1+用於指標收集\n- grafana最新版用於實時監控可視化\n- statsd 4.0.1+用於統計數據收集\n\n實現自動化的性能基準測試，並支持與歷史數據比較的功能。",
-        "testStrategy": "1. 基準測試：在標準環境下測量基本性能指標\n2. 負載測試：在不同負載水平下測試性能變化\n3. 壓力測試：測試系統在極限條件下的表現\n4. 耐久測試：長時間運行以評估穩定性",
+        "id": 20,
+        "title": "剪輯邏輯與故事節奏設計",
+        "description": "建立智能剪輯決策系統，分析故事節奏並設計觀眾情緒曲線",
+        "details": "設計剪輯邏輯和故事節奏系統：\n\n1. 故事節奏分析：\n```python\ndef analyze_story_rhythm(article_segments, matches):\n    \"\"\"分析文章的故事節奏並設計剪輯結構\"\"\"\n    # 估計文章結構\n    num_segments = len(article_segments)\n    \n    # 簡化的故事結構劃分\n    intro_end = max(1, int(num_segments * 0.2))  # 至少1個段落作為開場\n    development_end = intro_end + int(num_segments * 0.5)\n    climax_end = development_end + int(num_segments * 0.2)\n    \n    # 劃分故事階段\n    intro = article_segments[:intro_end]\n    development = article_segments[intro_end:development_end]\n    climax = article_segments[development_end:climax_end]\n    ending = article_segments[climax_end:]\n    \n    # 為每個階段分配匹配的場景\n    intro_matches = [m for i, m in enumerate(matches) if i < intro_end]\n    development_matches = [m for i, m in enumerate(matches) if intro_end <= i < development_end]\n    climax_matches = [m for i, m in enumerate(matches) if development_end <= i < climax_end]\n    ending_matches = [m for i, m in enumerate(matches) if i >= climax_end]\n    \n    return {\n        'introduction': {\n            'segments': intro,\n            'matches': intro_matches\n        },\n        'development': {\n            'segments': development,\n            'matches': development_matches\n        },\n        'climax': {\n            'segments': climax,\n            'matches': climax_matches\n        },\n        'ending': {\n            'segments': ending,\n            'matches': ending_matches\n        }\n    }\n```\n\n2. 技術展示邏輯：\n```python\ndef design_technical_showcase(scene_vectors):\n    \"\"\"設計技術展示邏輯，從基礎到進階\"\"\"\n    # 根據技術複雜度對場景進行分類\n    basic_scenes = []\n    intermediate_scenes = []\n    advanced_scenes = []\n    spectacular_scenes = []\n    \n    for scene in scene_vectors:\n        # 使用場景描述和技術參數評估複雜度\n        complexity = evaluate_technical_complexity(scene)\n        \n        if complexity < 0.3:\n            basic_scenes.append(scene)\n        elif complexity < 0.6:\n            intermediate_scenes.append(scene)\n        elif complexity < 0.8:\n            advanced_scenes.append(scene)\n        else:\n            spectacular_scenes.append(scene)\n    \n    # 為每個類別選擇最佳場景\n    selected_basic = select_best_scenes(basic_scenes, 2)  # 選2個基礎場景\n    selected_intermediate = select_best_scenes(intermediate_scenes, 3)  # 選3個中級場景\n    selected_advanced = select_best_scenes(advanced_scenes, 3)  # 選3個高級場景\n    selected_spectacular = select_best_scenes(spectacular_scenes, 2)  # 選2個精彩場景\n    \n    # 組合成技術展示序列\n    showcase_sequence = selected_basic + selected_intermediate + selected_advanced + selected_spectacular\n    \n    return showcase_sequence\n\ndef evaluate_technical_complexity(scene):\n    \"\"\"評估場景的技術複雜度\"\"\"\n    # 這裡可以實現基於場景描述和技術參數的複雜度評估\n    # 簡化版本：基於關鍵詞和技術參數\n    \n    complexity_keywords = {\n        'high': ['特技', '翻轉', '高速', '穿越', '編隊', '協同', '精準'],\n        'medium': ['跟隨', '環繞', '上升', '俯衝', '側飛', '定點'],\n        'low': ['起飛', '降落', '懸停', '緩慢', '簡單']\n    }\n    \n    description = scene['description'].lower()\n    \n    # 計算複雜度分數\n    high_count = sum(1 for kw in complexity_keywords['high'] if kw in description)\n    medium_count = sum(1 for kw in complexity_keywords['medium'] if kw in description)\n    low_count = sum(1 for kw in complexity_keywords['low'] if kw in description)\n    \n    # 加權計算\n    complexity = (high_count * 0.6 + medium_count * 0.3 + low_count * 0.1) / max(1, high_count + medium_count + low_count)\n    \n    # 考慮技術參數\n    if 'technical_params' in scene and scene['technical_params']:\n        # 根據技術參數調整複雜度\n        if 'speed' in scene['technical_params'] and scene['technical_params']['speed'] > 10:\n            complexity += 0.2\n        if 'altitude' in scene['technical_params'] and scene['technical_params']['altitude'] > 50:\n            complexity += 0.1\n    \n    return min(1.0, complexity)  # 確保不超過1.0\n```\n\n3. 情緒曲線設計：\n```python\ndef design_emotional_curve(story_rhythm, scene_vectors):\n    \"\"\"設計觀眾情緒曲線\"\"\"\n    # 定義情緒目標曲線\n    # 開場：中等興趣 -> 發展：漸增 -> 高潮：最高點 -> 結尾：平緩收尾\n    target_curve = {\n        'introduction': 0.5,  # 中等興趣\n        'development': [0.5, 0.6, 0.7],  # 漸增\n        'climax': [0.8, 0.9, 1.0],  # 高潮\n        'ending': [0.7, 0.6]  # 平緩收尾\n    }\n    \n    # 為每個階段選擇符合情緒曲線的場景\n    selected_scenes = []\n    \n    # 處理開場\n    intro_target = target_curve['introduction']\n    intro_scenes = select_scenes_by_emotion(story_rhythm['introduction']['matches'], intro_target)\n    selected_scenes.extend(intro_scenes)\n    \n    # 處理發展階段\n    for i, target in enumerate(target_curve['development']):\n        dev_scenes = select_scenes_by_emotion(story_rhythm['development']['matches'], target)\n        selected_scenes.extend(dev_scenes)\n    \n    # 處理高潮\n    for i, target in enumerate(target_curve['climax']):\n        climax_scenes = select_scenes_by_emotion(story_rhythm['climax']['matches'], target)\n        selected_scenes.extend(climax_scenes)\n    \n    # 處理結尾\n    for i, target in enumerate(target_curve['ending']):\n        ending_scenes = select_scenes_by_emotion(story_rhythm['ending']['matches'], target)\n        selected_scenes.extend(ending_scenes)\n    \n    return selected_scenes\n\ndef select_scenes_by_emotion(matches, target_emotion):\n    \"\"\"選擇符合目標情緒強度的場景\"\"\"\n    # 從匹配結果中選擇最接近目標情緒的場景\n    selected = []\n    \n    for match in matches:\n        scenes = match['matched_scenes']\n        if not scenes:\n            continue\n        \n        # 計算每個場景的情緒強度\n        for scene in scenes:\n            # 這裡可以實現更複雜的情緒評估\n            # 簡化版本：使用重要性分數作為情緒強度的代理\n            emotion_intensity = scene.get('importance_score', 0.5)\n            scene['emotion_distance'] = abs(emotion_intensity - target_emotion)\n        \n        # 選擇最接近目標情緒的場景\n        scenes.sort(key=lambda x: x['emotion_distance'])\n        if scenes:\n            selected.append(scenes[0])\n    \n    return selected[:2]  # 每個階段選擇最多2個場景\n```\n\n4. 使用LLM (如Gemini 2.5 Pro)進行高級剪輯決策，考慮敘事連貫性和視覺流暢性",
+        "testStrategy": "1. 故事結構測試：評估故事節奏分析的準確性\n2. 技術展示測試：評估技術展示邏輯的合理性\n3. 情緒曲線測試：評估情緒曲線設計的效果\n4. 用戶體驗測試：讓測試用戶評價生成的剪輯邏輯\n5. 專業評估：由專業剪輯師評估剪輯邏輯的質量",
+        "priority": "medium",
+        "dependencies": [
+          19
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "序列生成引擎開發",
+        "description": "開發LLM驅動的序列決策系統，實現自動化分鏡序列生成和剪輯點精確定位",
+        "details": "實現LLM驅動的序列生成引擎：\n\n1. LLM序列決策系統：\n```python\nfrom langchain.llms import ChatOpenAI\nfrom langchain.prompts import PromptTemplate\nfrom langchain.chains import LLMChain\nimport json\n\ndef generate_sequence_with_llm(article_text, matched_scenes, story_rhythm):\n    \"\"\"使用LLM生成剪輯序列\"\"\"\n    # 準備LLM輸入\n    scenes_json = json.dumps(matched_scenes, ensure_ascii=False, indent=2)\n    rhythm_json = json.dumps(story_rhythm, ensure_ascii=False, indent=2)\n    \n    # 創建提示模板\n    template = \"\"\"\n    你是一位專業的影片剪輯師，需要為一篇關於無人機的新聞文章創建剪輯分鏡表。\n    \n    文章內容：\n    {article_text}\n    \n    可用的影片場景：\n    {scenes_json}\n    \n    故事節奏分析：\n    {rhythm_json}\n    \n    請創建一個剪輯序列，包含10-15個場景，確保序列符合以下要求：\n    1. 遵循故事節奏：開場、發展、高潮、結尾\n    2. 技術展示邏輯：從基礎到進階，再到精彩表演\n    3. 情緒曲線：逐漸提升，在高潮達到頂點，然後平緩結束\n    4. 視覺連貫性：場景之間的轉換應該流暢\n    5. 為每個選擇的場景提供剪輯理由\n    \n    請以JSON格式返回結果，包含以下字段：\n    - sequence: 場景序列，每個場景包含video_id, timestamp, duration, description和剪輯理由\n    - rationale: 整體剪輯思路說明\n    \"\"\"\n    \n    # 設置LLM\n    llm = ChatOpenAI(model_name=\"gpt-4\", temperature=0.2)\n    prompt = PromptTemplate(template=template, input_variables=[\"article_text\", \"scenes_json\", \"rhythm_json\"])\n    chain = LLMChain(llm=llm, prompt=prompt)\n    \n    # 生成序列\n    response = chain.run(article_text=article_text, scenes_json=scenes_json, rhythm_json=rhythm_json)\n    \n    # 解析LLM返回的JSON\n    try:\n        result = json.loads(response)\n        return result\n    except json.JSONDecodeError:\n        # 處理非JSON返回\n        print(\"LLM未返回有效JSON，嘗試提取JSON部分\")\n        # 嘗試提取JSON部分\n        json_start = response.find('{')\n        json_end = response.rfind('}')\n        if json_start >= 0 and json_end >= 0:\n            json_str = response[json_start:json_end+1]\n            try:\n                result = json.loads(json_str)\n                return result\n            except:\n                pass\n        \n        # 返回錯誤信息\n        return {\"error\": \"無法解析LLM返回的序列\", \"raw_response\": response}\n```\n\n2. 多重候選方案生成：\n```python\ndef generate_multiple_candidates(article_text, matched_scenes, story_rhythm, num_candidates=3):\n    \"\"\"生成多個候選剪輯序列\"\"\"\n    candidates = []\n    \n    for i in range(num_candidates):\n        # 使用不同的溫度參數生成不同的序列\n        temperature = 0.2 + (i * 0.3)  # 0.2, 0.5, 0.8\n        \n        # 使用LLM生成序列\n        llm = ChatOpenAI(model_name=\"gpt-4\", temperature=temperature)\n        prompt = PromptTemplate(template=template, input_variables=[\"article_text\", \"scenes_json\", \"rhythm_json\"])\n        chain = LLMChain(llm=llm, prompt=prompt)\n        \n        response = chain.run(article_text=article_text, scenes_json=scenes_json, rhythm_json=rhythm_json)\n        \n        try:\n            result = json.loads(response)\n            candidates.append({\n                'sequence': result.get('sequence', []),\n                'rationale': result.get('rationale', ''),\n                'temperature': temperature\n            })\n        except:\n            print(f\"候選方案 {i+1} 生成失敗\")\n    \n    return candidates\n\ndef evaluate_candidates(candidates):\n    \"\"\"評估候選序列的質量\"\"\"\n    evaluations = []\n    \n    for i, candidate in enumerate(candidates):\n        sequence = candidate.get('sequence', [])\n        \n        # 評估指標\n        coverage = len(sequence) / 15 if sequence else 0  # 理想長度為10-15個場景\n        diversity = calculate_diversity(sequence)\n        coherence = calculate_coherence(sequence)\n        technical_progression = calculate_technical_progression(sequence)\n        \n        # 計算總分\n        total_score = (coverage * 0.2) + (diversity * 0.3) + (coherence * 0.3) + (technical_progression * 0.2)\n        \n        evaluations.append({\n            'candidate_id': i,\n            'score': total_score,\n            'metrics': {\n                'coverage': coverage,\n                'diversity': diversity,\n                'coherence': coherence,\n                'technical_progression': technical_progression\n            }\n        })\n    \n    # 排序\n    evaluations.sort(key=lambda x: x['score'], reverse=True)\n    return evaluations\n```\n\n3. 剪輯點精確定位：\n```python\ndef refine_edit_points(sequence):\n    \"\"\"精確定位剪輯點\"\"\"\n    refined_sequence = []\n    \n    for scene in sequence:\n        # 獲取原始時間碼\n        original_timestamp = scene.get('timestamp')\n        original_duration = scene.get('duration')\n        \n        # 尋找更好的剪輯點\n        refined_timestamp, refined_duration = find_better_edit_points(scene)\n        \n        # 更新場景信息\n        refined_scene = scene.copy()\n        refined_scene['original_timestamp'] = original_timestamp\n        refined_scene['original_duration'] = original_duration\n        refined_scene['timestamp'] = refined_timestamp\n        refined_scene['duration'] = refined_duration\n        \n        refined_sequence.append(refined_scene)\n    \n    return refined_sequence\n\ndef find_better_edit_points(scene):\n    \"\"\"尋找更好的剪輯點\"\"\"\n    # 這裡可以實現更複雜的剪輯點優化邏輯\n    # 簡化版本：調整時間碼使場景更緊湊\n    \n    timestamp = scene.get('timestamp')\n    duration = scene.get('duration')\n    \n    # 假設我們想要縮短場景，專注於最重要的部分\n    # 在實際實現中，這可能需要分析場景內容\n    if duration and duration.total_seconds() > 10:\n        # 如果場景超過10秒，縮短到8秒\n        new_duration = timedelta(seconds=8)\n        \n        # 調整開始時間，保留中間部分\n        offset = (duration.total_seconds() - 8) / 2\n        new_timestamp = timestamp + timedelta(seconds=offset)\n        \n        return new_timestamp, new_duration\n    \n    return timestamp, duration\n```\n\n4. 使用Gemini 2.5 Pro或Claude作為LLM引擎，提供更好的中文理解和生成能力",
+        "testStrategy": "1. 序列質量測試：評估生成序列的質量和連貫性\n2. LLM性能測試：比較不同LLM模型的序列生成效果\n3. 剪輯點精確性測試：評估剪輯點定位的準確性\n4. 多樣性測試：評估生成序列的多樣性\n5. 專業評估：由專業剪輯師評估生成序列的質量",
         "priority": "high",
         "dependencies": [
-          1,
-          2
+          20
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "設計性能測試場景與指標",
-            "description": "根據MCP Server的特性，設計涵蓋響應時間、資源消耗、穩定性和並發能力的性能測試場景與評估指標。",
-            "dependencies": [],
-            "details": "明確定義首次響應時間、完成時間、思考時間、CPU/記憶體/網絡流量監控、長時間運行與錯誤恢復測試、多用戶並發等測試需求，並制定可量化的評分標準。",
-            "status": "pending",
-            "testStrategy": "由Zen MCP負責，結合多模型協作，參考業界標準與最佳實踐，確保測試場景覆蓋所有關鍵性能維度。"
-          },
-          {
-            "id": 2,
-            "title": "實現性能測試模塊核心功能",
-            "description": "基於Locust、prometheus-client、statsd等工具，開發自動化性能測試模塊，支持多MCP Server的測試。",
-            "dependencies": [
-              1
-            ],
-            "details": "由Serena MCP負責，完成模塊的編碼實現，包括負載生成、指標收集、數據上報與結構化管理，並確保與各MCP Server的接口兼容。",
-            "status": "pending",
-            "testStrategy": "單元測試與集成測試覆蓋所有核心功能，確保模塊穩定運行並能正確收集性能數據。"
-          },
-          {
-            "id": 3,
-            "title": "集成實時監控與可視化",
-            "description": "將Prometheus和Grafana集成到性能測試模塊，實現測試過程的實時監控與數據可視化。",
-            "dependencies": [
-              2
-            ],
-            "details": "由Serena MCP協同Context7 MCP負責，設計並實現指標導出、數據抓取與Grafana儀表板配置，支持多維度性能數據的動態展示。",
-            "status": "pending",
-            "testStrategy": "通過模擬測試場景，驗證監控數據的準確性與可視化效果，確保異常情況能及時反映。"
-          },
-          {
-            "id": 4,
-            "title": "自動化基準測試與歷史數據對比",
-            "description": "開發自動化基準測試流程，支持與歷史性能數據的對比分析，實現性能回歸檢查。",
-            "dependencies": [
-              3
-            ],
-            "details": "由TaskMaster MCP負責，設計自動化任務調度、結果歸檔與對比算法，確保每次測試結果可追溯並能自動生成對比報告。",
-            "status": "pending",
-            "testStrategy": "定期運行基準測試，驗證對比邏輯的準確性，並通過回歸測試檢查性能波動。"
-          },
-          {
-            "id": 5,
-            "title": "知識管理與最佳實踐沉澱",
-            "description": "建立測試知識庫，記錄測試過程、結果、問題與優化建議，並持續跟進業界最新標準。",
-            "dependencies": [
-              4
-            ],
-            "details": "由OpenMemory MCP協同Perplexity MCP負責，整理測試文檔、標準流程、常見問題與解決方案，並定期更新業界基準與最佳實踐。",
-            "status": "pending",
-            "testStrategy": "定期審查知識庫內容，確保信息準確、可檢索，並支持團隊知識共享與能力提升。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 5,
-        "title": "實現準確性評估模塊",
-        "description": "開發評估各MCP Server輸出結果準確性與可靠性的測試模塊",
-        "details": "設計並實現準確性評估系統，包括：\n\n1. 標準測試集：包含已知答案的問題和任務\n2. 評分機制：使用多維度評分（正確性、完整性、相關性等）\n3. 人工評估輔助工具：支持專家審核和評分\n4. 自動化比較工具：與標準答案進行比較\n\n技術選擇：\n- ROUGE/BLEU/METEOR等NLP評估指標\n- transformers 4.34.0+用於語義相似度計算\n- scikit-learn 1.3.1+用於評估指標計算\n- sentence-transformers最新版用於文本嵌入\n\n實現多級評估系統，從基本事實檢查到複雜推理能力評估。",
-        "testStrategy": "1. 基準測試：使用標準問答集評估基本準確性\n2. 領域特定測試：在不同專業領域測試準確性\n3. 交叉驗證：使用不同評估方法驗證結果一致性\n4. 人機協作評估：結合自動評估和人工審核",
+        "id": 22,
+        "title": "分鏡表格式化系統",
+        "description": "設計並實現標準分鏡表格式，包含時間碼、場景描述、技術參數和剪輯要點",
+        "details": "實現分鏡表格式化系統：\n\n1. 標準分鏡表格式設計：\n```python\nfrom dataclasses import dataclass\nfrom datetime import timedelta\nfrom typing import List, Optional, Dict, Any\nimport pandas as pd\nimport json\n\n@dataclass\nclass EditPoint:\n    \"\"\"剪輯點信息\"\"\"\n    video_id: str\n    filename: str\n    timestamp: timedelta\n    duration: timedelta\n    description: str\n    technical_params: Optional[Dict[str, Any]] = None\n    edit_notes: Optional[str] = None\n    transition_type: Optional[str] = None\n\n@dataclass\nclass Storyboard:\n    \"\"\"完整分鏡表\"\"\"\n    title: str\n    author: str\n    created_at: str\n    total_duration: timedelta\n    edit_points: List[EditPoint]\n    notes: Optional[str] = None\n\ndef create_storyboard(sequence, article_title):\n    \"\"\"創建標準分鏡表\"\"\"\n    edit_points = []\n    total_duration = timedelta()\n    \n    for i, scene in enumerate(sequence):\n        # 創建剪輯點\n        edit_point = EditPoint(\n            video_id=scene.get('video_id', ''),\n            filename=scene.get('filename', ''),\n            timestamp=scene.get('timestamp', timedelta()),\n            duration=scene.get('duration', timedelta()),\n            description=scene.get('description', ''),\n            technical_params=scene.get('technical_params'),\n            edit_notes=scene.get('edit_reason', ''),\n            transition_type='Cut' if i > 0 else None  # 默認使用直切\n        )\n        \n        edit_points.append(edit_point)\n        total_duration += edit_point.duration\n    \n    # 創建分鏡表\n    storyboard = Storyboard(\n        title=article_title,\n        author=\"AI剪輯助手\",\n        created_at=datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\"),\n        total_duration=total_duration,\n        edit_points=edit_points,\n        notes=\"由AI自動生成的分鏡表，基於新聞文章和無人機影片場記\"\n    )\n    \n    return storyboard\n```\n\n2. 導出為多種格式：\n```python\ndef export_to_excel(storyboard, output_path):\n    \"\"\"導出為Excel格式\"\"\"\n    # 創建數據框\n    rows = []\n    for i, ep in enumerate(storyboard.edit_points):\n        row = {\n            '序號': i + 1,\n            '影片ID': ep.video_id,\n            '檔案名': ep.filename,\n            '時間碼': str(ep.timestamp),\n            '時長': str(ep.duration),\n            '場景描述': ep.description,\n            '技術參數': json.dumps(ep.technical_params, ensure_ascii=False) if ep.technical_params else '',\n            '剪輯備註': ep.edit_notes,\n            '轉場類型': ep.transition_type\n        }\n        rows.append(row)\n    \n    df = pd.DataFrame(rows)\n    \n    # 創建Excel寫入器\n    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:\n        df.to_excel(writer, sheet_name='分鏡表', index=False)\n        \n        # 添加元數據表\n        metadata = pd.DataFrame([\n            {'項目': '標題', '值': storyboard.title},\n            {'項目': '作者', '值': storyboard.author},\n            {'項目': '創建時間', '值': storyboard.created_at},\n            {'項目': '總時長', '值': str(storyboard.total_duration)},\n            {'項目': '備註', '值': storyboard.notes}\n        ])\n        metadata.to_excel(writer, sheet_name='元數據', index=False)\n    \n    return output_path\n\ndef export_to_pdf(storyboard, output_path):\n    \"\"\"導出為PDF格式\"\"\"\n    from reportlab.lib.pagesizes import A4\n    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer\n    from reportlab.lib.styles import getSampleStyleSheet\n    from reportlab.lib import colors\n    \n    # 創建PDF文檔\n    doc = SimpleDocTemplate(output_path, pagesize=A4)\n    styles = getSampleStyleSheet()\n    elements = []\n    \n    # 添加標題\n    title = Paragraph(f\"分鏡表: {storyboard.title}\", styles['Title'])\n    elements.append(title)\n    elements.append(Spacer(1, 12))\n    \n    # 添加元數據\n    metadata = [\n        [\"作者:\", storyboard.author],\n        [\"創建時間:\", storyboard.created_at],\n        [\"總時長:\", str(storyboard.total_duration)],\n        [\"備註:\", storyboard.notes]\n    ]\n    meta_table = Table(metadata, colWidths=[100, 400])\n    meta_table.setStyle(TableStyle([\n        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),\n        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),\n    ]))\n    elements.append(meta_table)\n    elements.append(Spacer(1, 20))\n    \n    # 添加分鏡表\n    data = [[\"序號\", \"影片ID\", \"時間碼\", \"時長\", \"場景描述\", \"剪輯備註\"]]\n    for i, ep in enumerate(storyboard.edit_points):\n        data.append([\n            i + 1,\n            ep.video_id,\n            str(ep.timestamp),\n            str(ep.duration),\n            ep.description,\n            ep.edit_notes\n        ])\n    \n    table = Table(data, colWidths=[30, 60, 60, 60, 200, 100])\n    table.setStyle(TableStyle([\n        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),\n        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),\n        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),\n        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),\n    ]))\n    elements.append(table)\n    \n    # 生成PDF\n    doc.build(elements)\n    return output_path\n\ndef export_to_edl(storyboard, output_path, fps=30):\n    \"\"\"導出為EDL格式\"\"\"\n    # EDL格式是剪輯軟件使用的標準格式\n    with open(output_path, 'w') as f:\n        f.write(\"TITLE: {}\\n\\n\".format(storyboard.title))\n        \n        current_timeline_pos = 0  # 時間軸位置（幀數）\n        \n        for i, ep in enumerate(storyboard.edit_points):\n            # 計算時間碼\n            source_start_frame = int(ep.timestamp.total_seconds() * fps)\n            source_end_frame = source_start_frame + int(ep.duration.total_seconds() * fps)\n            \n            timeline_start_frame = current_timeline_pos\n            timeline_end_frame = timeline_start_frame + int(ep.duration.total_seconds() * fps)\n            \n            # 更新時間軸位置\n            current_timeline_pos = timeline_end_frame\n            \n            # 寫入EDL條目\n            f.write(\"{:03d}  {}  V  C        {:07d} {:07d} {:07d} {:07d}\\n\".format(\n                i + 1,  # 編號\n                ep.video_id,  # 素材ID\n                source_start_frame,  # 源起始幀\n                source_end_frame,  # 源結束幀\n                timeline_start_frame,  # 時間軸起始幀\n                timeline_end_frame  # 時間軸結束幀\n            ))\n            \n            # 添加備註\n            if ep.description or ep.edit_notes:\n                f.write(\"* FROM CLIP NAME: {}\\n\".format(ep.filename))\n                if ep.description:\n                    f.write(\"* DESCRIPTION: {}\\n\".format(ep.description))\n                if ep.edit_notes:\n                    f.write(\"* NOTES: {}\\n\".format(ep.edit_notes))\n            \n            f.write(\"\\n\")\n    \n    return output_path\n```\n\n3. 分鏡表預覽功能：\n```python\ndef generate_storyboard_preview(storyboard, output_path):\n    \"\"\"生成分鏡表預覽圖\"\"\"\n    import matplotlib.pyplot as plt\n    import matplotlib.gridspec as gridspec\n    import numpy as np\n    from PIL import Image, ImageDraw, ImageFont\n    \n    # 創建畫布\n    fig = plt.figure(figsize=(12, len(storyboard.edit_points) * 1.5))\n    gs = gridspec.GridSpec(len(storyboard.edit_points), 3, width_ratios=[1, 3, 2])\n    \n    for i, ep in enumerate(storyboard.edit_points):\n        # 第一列：序號和時間碼\n        ax1 = plt.subplot(gs[i, 0])\n        ax1.text(0.5, 0.7, f\"#{i+1}\", fontsize=14, ha='center')\n        ax1.text(0.5, 0.3, f\"{str(ep.timestamp)}\", fontsize=10, ha='center')\n        ax1.axis('off')\n        \n        # 第二列：場景描述\n        ax2 = plt.subplot(gs[i, 1])\n        ax2.text(0.05, 0.5, ep.description, fontsize=12, va='center', wrap=True)\n        ax2.axis('off')\n        \n        # 第三列：剪輯備註\n        ax3 = plt.subplot(gs[i, 2])\n        ax3.text(0.05, 0.5, ep.edit_notes or \"\", fontsize=10, va='center', wrap=True)\n        ax3.axis('off')\n        \n        # 添加分隔線\n        if i < len(storyboard.edit_points) - 1:\n            plt.axhline(y=(i+1)/len(storyboard.edit_points), color='gray', linestyle='-', alpha=0.3)\n    \n    # 添加標題\n    plt.suptitle(f\"分鏡表: {storyboard.title}\", fontsize=16)\n    \n    # 保存圖片\n    plt.tight_layout(rect=[0, 0, 1, 0.97])\n    plt.savefig(output_path, dpi=150)\n    plt.close()\n    \n    return output_path\n```\n\n4. 使用專業剪輯軟件格式標準，確保與主流剪輯軟件兼容",
+        "testStrategy": "1. 格式測試：測試各種格式的導出功能\n2. 兼容性測試：測試與主流剪輯軟件的兼容性\n3. 視覺測試：評估預覽圖的視覺效果\n4. 用戶測試：讓實際剪輯師評估分鏡表的實用性\n5. 邊緣情況測試：測試特殊字符、極長描述等情況",
         "priority": "medium",
         "dependencies": [
-          1,
-          2,
-          3
+          21
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "設計標準測試集與基準答案",
-            "description": "收集並設計包含已知標準答案的問題和任務，覆蓋多種MCP Server應用場景，確保評估全面性。",
-            "dependencies": [],
-            "details": "根據不同MCP Server的功能，設計多樣化的標準測試集，涵蓋事實查詢、推理、文本生成等，並明確標準答案。",
-            "status": "pending",
-            "testStrategy": "通過專家審核測試集內容，確保問題與標準答案的準確性與代表性。"
-          },
-          {
-            "id": 2,
-            "title": "實現多維度自動評分機制",
-            "description": "開發自動化評分模塊，結合BLEU、ROUGE、METEOR等NLP評估指標及語義相似度計算，對MCP Server輸出進行多維度評分。",
-            "dependencies": [
-              1
-            ],
-            "details": "利用transformers、sentence-transformers和scikit-learn等工具，實現正確性、完整性、相關性等維度的自動評分。",
-            "status": "pending",
-            "testStrategy": "對標準測試集中的樣本進行自動評分，並與人工評分結果對比驗證評分一致性。"
-          },
-          {
-            "id": 3,
-            "title": "開發人工評估輔助工具",
-            "description": "設計並實現支持專家審核和多維度人工評分的界面與工具，輔助人工質量評估。",
-            "dependencies": [
-              1
-            ],
-            "details": "提供可視化界面，支持專家對MCP Server輸出進行標註、評分和反饋，並與自動評分結果聯動。",
-            "status": "pending",
-            "testStrategy": "邀請多位專家對同一批測試樣本進行評分，檢查工具的易用性和評分一致性。"
-          },
-          {
-            "id": 4,
-            "title": "構建自動化比較與報告生成系統",
-            "description": "開發自動化工具，將MCP Server輸出與標準答案進行對比，並生成詳細評估報告。",
-            "dependencies": [
-              2,
-              3
-            ],
-            "details": "集成自動評分和人工評分結果，生成多維度對比報告，支持結果可視化和導出。",
-            "status": "pending",
-            "testStrategy": "對多組測試數據自動生成評估報告，檢查報告準確性和可讀性。"
-          },
-          {
-            "id": 5,
-            "title": "建立測試結果記錄與知識管理模塊",
-            "description": "設計並實現測試結果的持久化存儲、版本管理與知識積累系統，支持後續查詢與分析。",
-            "dependencies": [
-              4
-            ],
-            "details": "將所有評估數據、專家反饋和報告進行結構化存儲，支持版本追蹤和知識檢索。",
-            "status": "pending",
-            "testStrategy": "隨機抽查歷史評估記錄，驗證數據完整性與可追溯性。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 6,
-        "title": "開發協同工作測試模塊",
-        "description": "實現測試模塊評估多個MCP Server協同工作的效果和流暢度",
-        "details": "設計並實現協同工作測試系統，包括：\n\n1. 工作流程定義框架：允許定義多MCP協作流程\n2. 信息傳遞測試：評估MCP間信息傳遞的準確性\n3. 協作效率測量：評估協作完成任務的時間和質量\n4. 沖突解決能力：測試處理不一致信息的能力\n\n技術選擇：\n- Apache Airflow 2.7.1+用於工作流程編排\n- ZeroMQ 25.0.0+用於組件間通信\n- NetworkX 3.1+用於協作關係分析和可視化\n- JSON-LD用於語義數據交換\n\n實現至少5個典型協作場景的測試用例，包括軟件開發、文檔生成、問題解決等場景。",
-        "testStrategy": "1. 端到端測試：完整協作流程的功能驗證\n2. 組件測試：驗證各MCP在協作中的角色表現\n3. 故障注入：測試某個MCP失效時的系統彈性\n4. 性能測試：評估協作模式下的整體性能",
+        "id": 23,
+        "title": "模組整合與端到端測試",
+        "description": "整合所有模組並進行端到端流程測試，確保從文章到分鏡表的完整流程",
+        "details": "實現模組整合和端到端測試：\n\n1. 主流程整合：\n```python\nclass StoryboardGenerator:\n    \"\"\"分鏡表生成系統主類\"\"\"\n    \n    def __init__(self):\n        # 初始化各模組\n        self.json_parser = JsonParser()\n        self.data_standardizer = DataStandardizer()\n        self.article_analyzer = ArticleAnalyzer()\n        self.scene_vectorizer = SceneVectorizer()\n        self.semantic_matcher = SemanticMatcher()\n        self.story_rhythm_analyzer = StoryRhythmAnalyzer()\n        self.sequence_generator = SequenceGenerator()\n        self.storyboard_formatter = StoryboardFormatter()\n    \n    def process(self, article_path, scene_json_path, output_dir):\n        \"\"\"執行完整處理流程\"\"\"\n        try:\n            # 步驟1：解析JSON數據\n            print(\"步驟1：解析JSON數據...\")\n            raw_data = self.json_parser.parse(scene_json_path)\n            \n            # 步驟2：標準化場記數據\n            print(\"步驟2：標準化場記數據...\")\n            video_records = self.data_standardizer.standardize(raw_data)\n            \n            # 步驟3：分析文章\n            print(\"步驟3：分析文章...\")\n            article_segments = self.article_analyzer.analyze(article_path)\n            \n            # 步驟4：向量化場景\n            print(\"步驟4：向量化場景...\")\n            scene_vectors = self.scene_vectorizer.vectorize(video_records)\n            \n            # 步驟5：語義匹配\n            print(\"步驟5：語義匹配...\")\n            matches = self.semantic_matcher.match(article_segments, scene_vectors)\n            \n            # 步驟6：分析故事節奏\n            print(\"步驟6：分析故事節奏...\")\n            story_rhythm = self.story_rhythm_analyzer.analyze(article_segments, matches)\n            \n            # 步驟7：生成序列\n            print(\"步驟7：生成序列...\")\n            sequence = self.sequence_generator.generate(article_segments, matches, story_rhythm)\n            \n            # 步驟8：格式化分鏡表\n            print(\"步驟8：格式化分鏡表...\")\n            storyboard = self.storyboard_formatter.format(sequence, article_segments[0]['text'])\n            \n            # 步驟9：導出結果\n            print(\"步驟9：導出結果...\")\n            results = {\n                'excel': self.storyboard_formatter.export_to_excel(storyboard, f\"{output_dir}/storyboard.xlsx\"),\n                'pdf': self.storyboard_formatter.export_to_pdf(storyboard, f\"{output_dir}/storyboard.pdf\"),\n                'edl': self.storyboard_formatter.export_to_edl(storyboard, f\"{output_dir}/storyboard.edl\"),\n                'preview': self.storyboard_formatter.generate_preview(storyboard, f\"{output_dir}/storyboard_preview.png\")\n            }\n            \n            print(\"處理完成！\")\n            return {\n                'status': 'success',\n                'storyboard': storyboard,\n                'outputs': results\n            }\n            \n        except Exception as e:\n            print(f\"處理過程中發生錯誤: {str(e)}\")\n            import traceback\n            traceback.print_exc()\n            return {\n                'status': 'error',\n                'error': str(e)\n            }\n```\n\n2. 性能優化：\n```python\ndef optimize_performance():\n    \"\"\"優化系統性能\"\"\"\n    # 內存使用優化\n    def optimize_memory_usage(video_records):\n        \"\"\"優化內存使用\"\"\"\n        # 使用生成器處理大型數據\n        def process_in_batches(records, batch_size=10):\n            for i in range(0, len(records), batch_size):\n                yield records[i:i+batch_size]\n        \n        # 使用更高效的數據結構\n        # 例如，使用NumPy數組替代Python列表存儲向量\n        return process_in_batches\n    \n    # 處理時間優化\n    def optimize_processing_time():\n        \"\"\"優化處理時間\"\"\"\n        # 使用多進程處理\n        from multiprocessing import Pool\n        \n        def parallel_process(func, items, n_processes=4):\n            with Pool(processes=n_processes) as pool:\n                results = pool.map(func, items)\n            return results\n        \n        return parallel_process\n    \n    return {\n        'memory_optimizer': optimize_memory_usage,\n        'time_optimizer': optimize_processing_time\n    }\n```\n\n3. 錯誤處理和異常恢復：\n```python\nclass ErrorHandler:\n    \"\"\"錯誤處理和異常恢復\"\"\"\n    \n    def __init__(self):\n        self.error_log = []\n    \n    def handle_error(self, stage, error, context=None):\n        \"\"\"處理錯誤\"\"\"\n        error_info = {\n            'stage': stage,\n            'error': str(error),\n            'timestamp': datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\"),\n            'context': context\n        }\n        \n        self.error_log.append(error_info)\n        print(f\"錯誤 ({stage}): {str(error)}\")\n        \n        # 根據錯誤類型決定恢復策略\n        recovery_strategy = self.determine_recovery_strategy(stage, error)\n        return recovery_strategy\n    \n    def determine_recovery_strategy(self, stage, error):\n        \"\"\"決定恢復策略\"\"\"\n        if stage == \"json_parsing\":\n            return {\n                'action': 'retry',\n                'params': {'use_alternative_parser': True}\n            }\n        elif stage == \"semantic_matching\":\n            return {\n                'action': 'continue',\n                'params': {'use_fallback_matching': True}\n            }\n        elif stage == \"sequence_generation\":\n            return {\n                'action': 'retry',\n                'params': {'use_simpler_model': True}\n            }\n        else:\n            return {\n                'action': 'abort',\n                'params': {}\n            }\n    \n    def get_error_log(self):\n        \"\"\"獲取錯誤日誌\"\"\"\n        return self.error_log\n```\n\n4. 使用Python 3.10+的新特性如模式匹配和結構化錯誤處理，提高代碼可讀性和穩健性",
+        "testStrategy": "1. 集成測試：測試所有模組的整合\n2. 端到端測試：測試完整的處理流程\n3. 性能測試：測量處理時間和內存使用\n4. 錯誤恢復測試：測試系統在各種錯誤情況下的恢復能力\n5. 負載測試：測試系統在處理大量數據時的表現",
+        "priority": "high",
+        "dependencies": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "BigDipper架構整合",
+        "description": "開發與BigDipper架構的整合接口，實現與MCP Server和Gemini CLI的無縫整合",
+        "details": "實現與BigDipper架構的整合：\n\n1. MCP Server接口開發：\n```python\nclass MCPServerInterface:\n    \"\"\"MCP Server接口\"\"\"\n    \n    def __init__(self, server_url, api_key=None):\n        self.server_url = server_url\n        self.api_key = api_key\n        self.session = requests.Session()\n        if api_key:\n            self.session.headers.update({'Authorization': f'Bearer {api_key}'})\n    \n    def register_service(self):\n        \"\"\"向MCP Server註冊服務\"\"\"\n        service_info = {\n            'name': 'storyboard_generator',\n            'description': 'AI剪輯分鏡表生成服務',\n            'version': '1.0.0',\n            'endpoints': [\n                {\n                    'path': '/generate',\n                    'method': 'POST',\n                    'description': '生成分鏡表'\n                },\n                {\n                    'path': '/status',\n                    'method': 'GET',\n                    'description': '獲取服務狀態'\n                }\n            ]\n        }\n        \n        response = self.session.post(f\"{self.server_url}/register\", json=service_info)\n        return response.json()\n    \n    def send_result(self, job_id, result):\n        \"\"\"向MCP Server發送處理結果\"\"\"\n        payload = {\n            'job_id': job_id,\n            'status': 'completed',\n            'result': result\n        }\n        \n        response = self.session.post(f\"{self.server_url}/jobs/{job_id}/result\", json=payload)\n        return response.json()\n    \n    def update_job_status(self, job_id, status, progress=None):\n        \"\"\"更新作業狀態\"\"\"\n        payload = {\n            'status': status\n        }\n        if progress is not None:\n            payload['progress'] = progress\n        \n        response = self.session.put(f\"{self.server_url}/jobs/{job_id}/status\", json=payload)\n        return response.json()\n```\n\n2. Gemini CLI整合：\n```python\nclass GeminiCLIIntegration:\n    \"\"\"Gemini CLI整合\"\"\"\n    \n    def __init__(self, cli_path):\n        self.cli_path = cli_path\n    \n    def execute_command(self, command, args):\n        \"\"\"執行Gemini CLI命令\"\"\"\n        cmd = [self.cli_path, command]\n        cmd.extend(args)\n        \n        try:\n            result = subprocess.run(cmd, capture_output=True, text=True, check=True)\n            return {\n                'status': 'success',\n                'output': result.stdout\n            }\n        except subprocess.CalledProcessError as e:\n            return {\n                'status': 'error',\n                'error': e.stderr\n            }\n    \n    def analyze_video(self, video_path, output_path):\n        \"\"\"使用Gemini CLI分析影片\"\"\"\n        return self.execute_command('analyze', ['--video', video_path, '--output', output_path])\n    \n    def generate_report(self, analysis_path, output_path):\n        \"\"\"使用Gemini CLI生成報告\"\"\"\n        return self.execute_command('report', ['--analysis', analysis_path, '--output', output_path])\n```\n\n3. 多AI模型協作：\n```python\nclass AIModelCollaboration:\n    \"\"\"多AI模型協作\"\"\"\n    \n    def __init__(self):\n        # 初始化各種AI模型\n        self.text_model = self.init_text_model()\n        self.vector_model = self.init_vector_model()\n        self.vision_model = self.init_vision_model()\n    \n    def init_text_model(self):\n        \"\"\"初始化文本模型\"\"\"\n        from langchain.llms import ChatOpenAI\n        return ChatOpenAI(model_name=\"gpt-4\", temperature=0.2)\n    \n    def init_vector_model(self):\n        \"\"\"初始化向量模型\"\"\"\n        from sentence_transformers import SentenceTransformer\n        return SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')\n    \n    def init_vision_model(self):\n        \"\"\"初始化視覺模型\"\"\"\n        from transformers import pipeline\n        return pipeline(\"image-classification\", model=\"google/vit-base-patch16-224\")\n    \n    def collaborative_analysis(self, text, images=None):\n        \"\"\"協作分析\"\"\"\n        results = {}\n        \n        # 文本分析\n        text_analysis = self.analyze_text(text)\n        results['text_analysis'] = text_analysis\n        \n        # 如果有圖像，進行圖像分析\n        if images:\n            image_analysis = self.analyze_images(images)\n            results['image_analysis'] = image_analysis\n            \n            # 多模態融合分析\n            fusion_analysis = self.fusion_analysis(text_analysis, image_analysis)\n            results['fusion_analysis'] = fusion_analysis\n        \n        return results\n    \n    def analyze_text(self, text):\n        \"\"\"文本分析\"\"\"\n        # 使用文本模型進行分析\n        # ...\n        return {}\n    \n    def analyze_images(self, images):\n        \"\"\"圖像分析\"\"\"\n        # 使用視覺模型進行分析\n        # ...\n        return {}\n    \n    def fusion_analysis(self, text_analysis, image_analysis):\n        \"\"\"多模態融合分析\"\"\"\n        # 結合文本和圖像分析結果\n        # ...\n        return {}\n```\n\n4. 使用FastAPI開發RESTful API，提供標準化的服務接口",
+        "testStrategy": "1. 接口測試：測試MCP Server接口的功能\n2. 集成測試：測試與Gemini CLI的整合\n3. 多模型協作測試：測試多AI模型協作的效果\n4. 端到端測試：測試完整的BigDipper架構整合\n5. 負載測試：測試系統在高負載下的表現",
+        "priority": "high",
+        "dependencies": [
+          23
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "成果驗證與展示系統",
+        "description": "完成POC驗證並準備展示，生成實際的剪輯分鏡表並進行品質評估",
+        "details": "實現成果驗證與展示系統：\n\n1. 生成實際分鏡表：\n```python\ndef generate_final_storyboard(article_path, scene_json_path, output_dir):\n    \"\"\"生成最終分鏡表\"\"\"\n    # 初始化生成器\n    generator = StoryboardGenerator()\n    \n    # 執行處理流程\n    result = generator.process(article_path, scene_json_path, output_dir)\n    \n    if result['status'] == 'success':\n        print(\"分鏡表生成成功！\")\n        print(f\"輸出文件：\")\n        for format_name, file_path in result['outputs'].items():\n            print(f\"- {format_name}: {file_path}\")\n        \n        # 返回生成的分鏡表\n        return result['storyboard']\n    else:\n        print(f\"分鏡表生成失敗: {result.get('error', '未知錯誤')}\")\n        return None\n```\n\n2. 品質評估：\n```python\ndef evaluate_storyboard_quality(storyboard, article_path):\n    \"\"\"評估分鏡表品質\"\"\"\n    # 讀取文章\n    with open(article_path, 'r', encoding='utf-8') as f:\n        article_text = f.read()\n    \n    # 評估指標\n    metrics = {\n        'coverage': evaluate_coverage(storyboard, article_text),\n        'coherence': evaluate_coherence(storyboard),\n        'technical_quality': evaluate_technical_quality(storyboard),\n        'creativity': evaluate_creativity(storyboard),\n        'usability': evaluate_usability(storyboard)\n    }\n    \n    # 計算總分\n    total_score = sum(metrics.values()) / len(metrics)\n    \n    # 評估結果\n    result = {\n        'metrics': metrics,\n        'total_score': total_score,\n        'rating': get_rating(total_score),\n        'strengths': identify_strengths(metrics),\n        'weaknesses': identify_weaknesses(metrics),\n        'improvement_suggestions': generate_improvement_suggestions(metrics)\n    }\n    \n    return result\n\ndef evaluate_coverage(storyboard, article_text):\n    \"\"\"評估分鏡表對文章內容的覆蓋度\"\"\"\n    # 提取文章關鍵詞\n    article_keywords = extract_keywords(article_text)\n    \n    # 提取分鏡表關鍵詞\n    storyboard_keywords = []\n    for ep in storyboard.edit_points:\n        storyboard_keywords.extend(extract_keywords(ep.description))\n        if ep.edit_notes:\n            storyboard_keywords.extend(extract_keywords(ep.edit_notes))\n    \n    # 計算覆蓋率\n    covered_keywords = set(article_keywords).intersection(set(storyboard_keywords))\n    coverage_score = len(covered_keywords) / len(article_keywords) if article_keywords else 0\n    \n    return min(1.0, coverage_score)\n\ndef evaluate_coherence(storyboard):\n    \"\"\"評估分鏡表的連貫性\"\"\"\n    # 簡化版本：檢查場景之間的連貫性\n    coherence_score = 0.0\n    \n    if len(storyboard.edit_points) < 2:\n        return 1.0  # 只有一個場景，默認為完全連貫\n    \n    # 檢查相鄰場景的連貫性\n    for i in range(1, len(storyboard.edit_points)):\n        prev_scene = storyboard.edit_points[i-1]\n        curr_scene = storyboard.edit_points[i]\n        \n        # 計算描述的相似度\n        similarity = calculate_text_similarity(prev_scene.description, curr_scene.description)\n        coherence_score += similarity\n    \n    # 計算平均連貫性分數\n    avg_coherence = coherence_score / (len(storyboard.edit_points) - 1)\n    return avg_coherence\n```\n\n3. 技術文檔和演示材料：\n```python\ndef generate_documentation(storyboard, evaluation, output_dir):\n    \"\"\"生成技術文檔\"\"\"\n    # 創建Markdown文檔\n    doc_path = f\"{output_dir}/technical_documentation.md\"\n    \n    with open(doc_path, 'w', encoding='utf-8') as f:\n        # 寫入標題\n        f.write(\"# 花社大無人機影片 - AI剪輯分鏡表生成POC專案\\n\\n\")\n        \n        # 寫入項目概述\n        f.write(\"## 項目概述\\n\\n\")\n        f.write(\"本POC專案驗證了從文本語義到影片片段的自動匹配與序列生成技術可行性。\")\n        f.write(\"系統能夠基於新聞文章內容和影片場記分析數據，自動生成剪輯分鏡表。\\n\\n\")\n        \n        # 寫入技術架構\n        f.write(\"## 技術架構\\n\\n\")\n        f.write(\"系統由以下核心組件構成：\\n\")\n        f.write(\"1. **數據解析器**：處理JSON場記數據\\n\")\n        f.write(\"2. **語義引擎**：實現文本與影片內容的匹配\\n\")\n        f.write(\"3. **序列生成器**：創建自動化的剪輯序列\\n\")\n        f.write(\"4. **分鏡表格式化**：生成專業級分鏡表\\n\\n\")\n        \n        # 寫入評估結果\n        f.write(\"## 評估結果\\n\\n\")\n        f.write(f\"總體評分：{evaluation['total_score']:.2f}/1.0 ({evaluation['rating']})\\n\\n\")\n        \n        f.write(\"### 評估指標\\n\\n\")\n        f.write(\"| 指標 | 分數 |\\n\")\n        f.write(\"| --- | --- |\\n\")\n        for metric, score in evaluation['metrics'].items():\n            f.write(f\"| {metric} | {score:.2f} |\\n\")\n        \n        f.write(\"\\n### 優勢\\n\\n\")\n        for strength in evaluation['strengths']:\n            f.write(f\"- {strength}\\n\")\n        \n        f.write(\"\\n### 改進空間\\n\\n\")\n        for weakness in evaluation['weaknesses']:\n            f.write(f\"- {weakness}\\n\")\n        \n        # 寫入分鏡表摘要\n        f.write(\"\\n## 分鏡表摘要\\n\\n\")\n        f.write(f\"- **標題**: {storyboard.title}\\n\")\n        f.write(f\"- **總時長**: {storyboard.total_duration}\\n\")\n        f.write(f\"- **場景數**: {len(storyboard.edit_points)}\\n\\n\")\n        \n        f.write(\"### 場景列表\\n\\n\")\n        f.write(\"| 序號 | 時間碼 | 時長 | 場景描述 |\\n\")\n        f.write(\"| --- | --- | --- | --- |\\n\")\n        for i, ep in enumerate(storyboard.edit_points):\n            f.write(f\"| {i+1} | {str(ep.timestamp)} | {str(ep.duration)} | {ep.description[:50]}... |\\n\")\n    \n    return doc_path\n\ndef generate_presentation(storyboard, evaluation, output_dir):\n    \"\"\"生成演示材料\"\"\"\n    from pptx import Presentation\n    from pptx.util import Inches, Pt\n    \n    # 創建演示文稿\n    prs = Presentation()\n    \n    # 添加標題幻燈片\n    title_slide = prs.slides.add_slide(prs.slide_layouts[0])\n    title = title_slide.shapes.title\n    subtitle = title_slide.placeholders[1]\n    title.text = \"花社大無人機影片 - AI剪輯分鏡表生成\"\n    subtitle.text = \"POC專案成果展示\"\n    \n    # 添加項目概述幻燈片\n    overview_slide = prs.slides.add_slide(prs.slide_layouts[1])\n    overview_slide.shapes.title.text = \"項目概述\"\n    overview_content = overview_slide.placeholders[1]\n    overview_text = \"\\n\".join([\n        \"• AI驅動的剪輯分鏡表自動生成系統\",\n        \"• 基於新聞文章和影片場記數據\",\n        \"• 實現從文本語義到影片片段的智能匹配\",\n        \"• 自動化剪輯序列規劃\",\n        \"• 專業級分鏡表生成\"\n    ])\n    overview_content.text = overview_text\n    \n    # 添加技術架構幻燈片\n    tech_slide = prs.slides.add_slide(prs.slide_layouts[1])\n    tech_slide.shapes.title.text = \"技術架構\"\n    tech_content = tech_slide.placeholders[1]\n    tech_text = \"\\n\".join([\n        \"• 數據解析器：JSON→結構化數據\",\n        \"• 語義引擎：sentence-transformers + 自定義匹配\",\n        \"• 序列生成器：LLM + 剪輯邏輯\",\n        \"• 分鏡表格式化：專業級輸出\",\n        \"• BigDipper整合：與MCP Server和Gemini CLI整合\"\n    ])\n    tech_content.text = tech_text\n    \n    # 添加評估結果幻燈片\n    eval_slide = prs.slides.add_slide(prs.slide_layouts[1])\n    eval_slide.shapes.title.text = \"評估結果\"\n    eval_content = eval_slide.placeholders[1]\n    eval_text = f\"總體評分：{evaluation['total_score']:.2f}/1.0 ({evaluation['rating']})\\n\\n\"\n    eval_text += \"優勢：\\n\"\n    for strength in evaluation['strengths'][:3]:  # 只顯示前3個優勢\n        eval_text += f\"• {strength}\\n\"\n    eval_text += \"\\n改進空間：\\n\"\n    for weakness in evaluation['weaknesses'][:3]:  # 只顯示前3個改進空間\n        eval_text += f\"• {weakness}\\n\"\n    eval_content.text = eval_text\n    \n    # 保存演示文稿\n    presentation_path = f\"{output_dir}/presentation.pptx\"\n    prs.save(presentation_path)\n    \n    return presentation_path\n```\n\n4. 使用matplotlib和seaborn生成可視化圖表，展示系統性能和結果",
+        "testStrategy": "1. 功能測試：測試分鏡表生成功能\n2. 品質評估測試：測試品質評估系統\n3. 文檔生成測試：測試技術文檔生成功能\n4. 演示材料測試：測試演示材料生成功能\n5. 專業評估：由專業剪輯師評估生成的分鏡表",
         "priority": "medium",
         "dependencies": [
-          1,
-          2,
-          3,
-          4
+          24
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "設計多MCP協作工作流程定義框架",
-            "description": "構建一個可擴展的框架，支持定義多個MCP Server協同工作的工作流程，並集成Apache Airflow進行流程編排。",
-            "dependencies": [],
-            "details": "由Zen MCP負責，聚焦於多模型協作流程的結構設計與深度分析，確保流程可覆蓋軟件開發、文檔生成、問題解決等典型場景。需考慮流程的靈活性與可擴展性，並設計流程元數據結構以支持自動化測試。",
-            "status": "pending",
-            "testStrategy": "設計單元測試驗證流程定義的正確性與可擴展性，並通過Airflow進行流程調度測試。"
-          },
-          {
-            "id": 2,
-            "title": "實現MCP間信息傳遞與通信測試模塊",
-            "description": "開發基於ZeroMQ的通信測試模塊，評估多MCP Server間信息傳遞的準確性、時延與可靠性。",
-            "dependencies": [
-              1
-            ],
-            "details": "由Serena MCP負責，實現通信協議的編碼與解碼，並構建模擬多MCP Server間的消息交換場景。需支持JSON-LD語義數據交換格式，並記錄傳遞過程中的異常與丟包情況。",
-            "status": "pending",
-            "testStrategy": "設計集成測試用例，模擬高並發與異常場景，驗證消息準確送達與錯誤處理能力。"
-          },
-          {
-            "id": 3,
-            "title": "構建協作效率與質量評測體系",
-            "description": "設計並實現協作效率測量模塊，評估多MCP Server協作完成任務的時間、質量與資源利用率。",
-            "dependencies": [
-              2
-            ],
-            "details": "由TaskMaster MCP負責，制定任務分解、進度追蹤與結果評分標準。集成NetworkX進行協作關係分析與可視化，並支持多維度效率指標（如平均響應時間、任務完成率等）。",
-            "status": "pending",
-            "testStrategy": "設計壓力測試與性能基準測試，對比不同協作模式下的效率與質量表現。"
-          },
-          {
-            "id": 4,
-            "title": "開發沖突檢測與解決能力測試模塊",
-            "description": "實現針對多MCP Server間信息不一致、資源競爭等情境的沖突檢測與自動化解決能力測試。",
-            "dependencies": [
-              3
-            ],
-            "details": "由Zen MCP與Context7 MCP協作，設計典型沖突場景（如數據版本衝突、任務分配重疊），並調研業界最佳實踐，實現自動化沖突檢測與解決策略。",
-            "status": "pending",
-            "testStrategy": "設計異常流程測試用例，驗證系統對沖突的識別、響應與恢復能力。"
-          },
-          {
-            "id": 5,
-            "title": "制定與執行典型協作場景測試用例集",
-            "description": "設計並執行至少5個典型協作場景（如軟件開發、文檔生成、問題解決等）的全流程測試用例，並記錄與分析測試結果。",
-            "dependencies": [
-              4
-            ],
-            "details": "由Perplexity MCP負責調研最新評測標準與業界基準，OpenMemory MCP負責測試結果記錄與知識管理。覆蓋多MCP Server協作的各類場景，並對測試數據進行結構化存儲與可視化分析。",
-            "status": "pending",
-            "testStrategy": "設計端到端集成測試，覆蓋所有模塊，並對比行業標準進行效果評估。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 7,
-        "title": "實現與原生Claude Code比較模塊",
-        "description": "開發測試模塊進行MCP Server與原生Claude Code的功能和性能對比",
-        "details": "設計並實現全面的比較測試系統，包括：\n\n1. 功能覆蓋對比：評估功能集的差異和重疊\n2. 性能基準測試：在相同任務下的性能比較\n3. 代碼質量分析：評估生成代碼的質量、可讀性和效率\n4. 開發輔助能力：測試在實際開發流程中的輔助效果\n\n技術選擇：\n- SonarQube最新版用於代碼質量分析\n- CodeClimate用於代碼複雜度評估\n- JMeter 5.6.2+用於性能比較測試\n- GitHub Actions用於自動化測試流程\n\n設計至少10個標準化測試案例，涵蓋不同複雜度和領域的編程任務。",
-        "testStrategy": "1. 對照測試：使用相同輸入比較輸出結果\n2. 盲測評估：由專家進行盲測評分\n3. 時間效率測試：完成相同任務所需時間比較\n4. 用戶體驗調查：收集開發者使用體驗反饋",
+        "id": 26,
+        "title": "建立智能JSON提取函數",
+        "description": "開發一個智能JSON提取函數extract_json_from_response()，專門解決BigDipper系統中多格式JSON字串包裝與容錯問題，並替換現有analyze_single_video中的JSON解析邏輯。",
+        "details": "1. 實現extract_json_from_response()函數，使用正則表達式自動識別並提取被```json標記包裝的內容，支持多個JSON區塊提取與合併。\n2. 針對不同JSON格式（如單層、嵌套、列表、舊版格式等）設計容錯處理邏輯，遇到格式錯誤時自動嘗試修復（如去除多餘逗號、補全括號等）。\n3. 建立向後兼容機制，能自動識別新舊格式並正確解析。\n4. 當解析失敗時，記錄詳細錯誤日誌，包括原始內容、錯誤類型與修復嘗試步驟。\n5. 將analyze_single_video中的原有JSON解析邏輯替換為新函數，確保所有下游流程均調用統一的提取接口。\n6. 參考Python標準庫json.loads()、json.load()等方法進行最終解析，並結合正則表達式進行前置處理[1][2][3][4]。\n7. 編寫單元測試覆蓋現有39支影片數據，驗證100%解析成功率，並測試各種異常與邊緣情況。",
+        "testStrategy": "1. 使用現有39支影片數據進行批量測試，確保全部能正確提取並解析JSON內容。\n2. 測試新舊格式自動檢測與兼容性，包含多種包裝與嵌套情境。\n3. 模擬格式錯誤（如缺失括號、非法字符、多餘逗號等），驗證容錯與修復能力。\n4. 驗證失敗時能正確記錄詳細日誌，並包含原始內容與錯誤描述。\n5. 集成測試：確保analyze_single_video及下游流程均能無縫調用新函數並獲得正確結果。",
+        "status": "pending",
+        "dependencies": [
+          23
+        ],
         "priority": "medium",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "制定標準化測試案例與對比指標",
-            "description": "設計至少10個涵蓋不同複雜度和領域的標準化測試案例，並明確功能覆蓋、性能、代碼質量等對比指標。",
-            "dependencies": [],
-            "details": "根據項目需求，制定測試案例和對比維度，確保能全面覆蓋MCP Server與原生Claude Code的主要功能和性能場景。",
-            "status": "pending",
-            "testStrategy": "由TaskMaster MCP協調，Context7 MCP負責查詢業界最佳實踐，Perplexity MCP負責收集最新評測標準。"
-          },
-          {
-            "id": 2,
-            "title": "搭建自動化測試與分析流程",
-            "description": "利用GitHub Actions集成SonarQube、CodeClimate、JMeter，構建自動化測試與分析流水線。",
-            "dependencies": [
-              1
-            ],
-            "details": "設置GitHub Actions工作流，配置SonarQube和CodeClimate進行代碼質量與複雜度分析，JMeter進行性能測試，並確保測試數據自動收集與歸檔。",
-            "status": "pending",
-            "testStrategy": "Serena MCP負責編碼與結構搭建，Zen MCP協助多模型協作測試，參考SonarQube與GitHub Actions官方文檔[2][4][5]。"
-          },
-          {
-            "id": 3,
-            "title": "執行功能覆蓋與性能基準測試",
-            "description": "針對設計的測試案例，分別在MCP Server與原生Claude Code上執行功能覆蓋和性能基準測試。",
-            "dependencies": [
-              2
-            ],
-            "details": "根據自動化流程，批量運行所有測試案例，收集功能覆蓋率、性能數據（如響應時間、吞吐量等）。",
-            "status": "pending",
-            "testStrategy": "Zen MCP負責深度分析與協作測試，Serena MCP負責測試腳本實現，OpenMemory MCP記錄測試過程與結果。"
-          },
-          {
-            "id": 4,
-            "title": "進行代碼質量與開發輔助能力分析",
-            "description": "利用SonarQube和CodeClimate對生成代碼進行質量、可讀性、效率等多維度分析，並評估開發輔助能力。",
-            "dependencies": [
-              3
-            ],
-            "details": "分析測試過程中產生的代碼，評估其質量指標，並通過實際開發流程測試輔助效果。",
-            "status": "pending",
-            "testStrategy": "Serena MCP負責數據收集與分析，Context7 MCP查詢技術文檔與最佳實踐，OpenMemory MCP歸檔分析結果。"
-          },
-          {
-            "id": 5,
-            "title": "彙總對比結果並生成報告",
-            "description": "整理所有測試與分析數據，形成MCP Server與原生Claude Code的功能、性能、代碼質量等多維度對比報告。",
-            "dependencies": [
-              4
-            ],
-            "details": "對比各項指標，總結優劣勢，並以圖表和文字形式生成最終報告，為後續決策提供依據。",
-            "status": "pending",
-            "testStrategy": "TaskMaster MCP負責進度追蹤與報告統籌，OpenMemory MCP負責知識管理與數據存檔。"
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 8,
-        "title": "開發使用體驗評估模塊",
-        "description": "實現評估各MCP Server使用體驗和學習曲線的測試模塊",
-        "details": "設計並實現使用體驗評估系統，包括：\n\n1. 用戶交互分析：評估交互的直觀性和一致性\n2. 學習曲線測量：新用戶掌握工具所需時間\n3. 滿意度調查工具：收集用戶反饋的標準化問卷\n4. 使用模式分析：識別常用功能和使用流程\n\n技術選擇：\n- Flask 2.3.3+/FastAPI 0.103.1+構建評估Web界面\n- SQLite/PostgreSQL用於數據存儲\n- Chart.js最新版用於數據可視化\n- SurveyJS用於問卷設計和數據收集\n\n實現用戶會話記錄和分析功能，以及交互熱圖生成工具。",
-        "testStrategy": "1. 用戶測試：招募測試用戶完成標準任務\n2. A/B測試：比較不同交互方式的效果\n3. 長期使用追蹤：評估長期使用體驗變化\n4. 專家評估：由UX專家進行啟發式評估",
+        "id": 27,
+        "title": "制定 LLM 驅動語義分析器三階段重構實施計劃",
+        "description": "設計並規劃將現有硬編碼語義分析器重構為 LLM＋提示詞工程驅動的動態系統，分三階段推進，確保通用性、結構化輸出、多供應商支持與 BigDipper 向後兼容。",
+        "details": "1. 第一階段（核心替換）：\n- 分析現有語義分析器的硬編碼邏輯，梳理所有依賴關鍵詞與規則。\n- 設計 LLM 提示詞模板，覆蓋新聞稿主題、意圖識別、關鍵信息抽取等核心任務，並規範 XML 標籤結構化輸出格式。\n- 實現 LLM 語義分析模組，支持 Claude、OpenAI、Gemini 等多供應商 API，並建立動態選擇與回退機制。\n- 完成與 BigDipper API 的初步對接，確保現有流程不受影響。\n\n2. 第二階段（能力增強）：\n- 引入檢索增強推理（RAI）技術，根據主題自動補充上下文，提升 LLM 分析準確率[1]。\n- 優化提示詞工程，根據不同新聞主題自動生成或調整提示詞，減少人工干預。\n- 增加智能視覺配對模組，將語義分析結果與剪輯素材自動關聯。\n- 實現性能優化，包括批量處理、異步調用與快取機制。\n\n3. 第三階段（系統整合）：\n- 深度整合語義分析器至 BigDipper 架構，支持 MCP Server、Gemini CLI 等接口，確保端到端流程自動化。\n- 建立多模型協作與結果融合機制，提升系統穩定性與泛化能力[3]。\n- 完善向後兼容機制，確保新舊 API、數據格式無縫切換。\n- 編寫詳細技術文檔與運維手冊，支持後續擴展與維護。\n\n技術考量：\n- 嚴禁任何硬編碼關鍵詞，所有語義規則均由 LLM＋提示詞動態生成。\n- XML 標籤結構化輸出，便於下游剪輯與分析。\n- 多 LLM 供應商 API 選擇與自動切換。\n- 性能與可擴展性優先設計。",
+        "testStrategy": "1. 單元測試：針對每個階段的語義分析結果，驗證其結構化輸出（XML）是否正確、完整，並覆蓋多主題新聞稿。\n2. 集成測試：與 BigDipper API、MCP Server、Gemini CLI 等系統進行端到端測試，確保流程自動化與兼容性。\n3. 多模型測試：分別調用 Claude、OpenAI、Gemini 等 LLM，驗證動態切換與回退機制的穩定性。\n4. 性能測試：測量批量處理、異步調用下的響應時間與資源消耗。\n5. 專業評估：由語言學專家與剪輯師對語義分析結果進行質量評分，確保實用性與準確性。\n6. 回歸測試：每次升級後，驗證舊有新聞稿流程與數據格式的兼容性。",
+        "status": "pending",
+        "dependencies": [
+          24,
+          26
+        ],
         "priority": "medium",
-        "dependencies": [
-          1,
-          2
-        ],
-        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "調研並制定使用體驗評估標準與指標",
-            "description": "由Perplexity MCP負責，調查最新的用戶體驗評估標準、業界基準和啟發式評估法，結合GSM模型和用戶體驗五要素，制定適用於MCP Server的評估指標體系。",
+            "title": "現有語義分析器架構與流程梳理",
+            "description": "全面分析現有硬編碼語義分析器的架構、數據流、依賴模組與關鍵詞規則，形成結構化文檔。",
             "dependencies": [],
-            "details": "收集並分析國內外用戶體驗評估標準、啟發式評估原則、學習曲線測量方法和滿意度調查問卷設計，形成標準化評估指標和量化方法。",
-            "status": "pending",
-            "testStrategy": "通過專家評審和與現有業界標準對比，驗證指標體系的科學性和適用性。"
+            "details": "產出現有系統的架構圖、流程圖及所有關鍵詞與規則清單。",
+            "status": "in-progress",
+            "testStrategy": "由技術負責人審核文檔完整性，並與現有代碼逐項對照驗證。"
           },
           {
             "id": 2,
-            "title": "設計並實現用戶交互與學習曲線數據收集模塊",
-            "description": "由Serena MCP負責，根據評估指標設計數據收集模塊，實現用戶會話記錄、交互熱圖、學習曲線測量等功能，並集成於Web界面。",
+            "title": "語義規則與關鍵詞依賴點識別",
+            "description": "梳理所有硬編碼的語義規則、關鍵詞（如tech_keywords, emotion_keywords等）及其觸發邏輯。",
             "dependencies": [
               1
             ],
-            "details": "使用Flask/FastAPI構建Web界面，集成用戶行為追蹤、交互熱圖生成、用戶操作時長與步驟記錄，並將數據存儲於SQLite/PostgreSQL。",
+            "details": "形成規則與關鍵詞對應表，標註其在流程中的作用點。",
             "status": "pending",
-            "testStrategy": "通過模擬用戶操作和自動化測試，驗證數據收集的完整性與準確性。"
+            "testStrategy": "隨機抽查規則與代碼對應關係，確保無遺漏。"
           },
           {
             "id": 3,
-            "title": "設計並部署滿意度調查與反饋收集工具",
-            "description": "由Serena MCP負責，基於SurveyJS設計標準化問卷，實現用戶滿意度調查、反饋收集及數據入庫功能。",
+            "title": "現有輸出格式與下游依賴梳理",
+            "description": "分析語義分析器的輸出格式（特別是XML結構）及其與BigDipper等下游系統的接口依賴。",
             "dependencies": [
               1
             ],
-            "details": "設計多語言問卷模板，支持不同MCP Server場景，並將用戶反饋數據與行為數據關聯存儲，便於後續分析。",
+            "details": "產出輸出格式規範文檔，明確所有必需字段與結構。",
             "status": "pending",
-            "testStrategy": "通過內部測試和用戶試填，檢查問卷流程、數據收集與存儲的正確性。"
-          },
-          {
-            "id": 4,
-            "title": "開發數據分析與可視化模塊",
-            "description": "由Zen MCP負責，實現多模型協作下的數據分析，開發Chart.js可視化儀表板，支持交互熱圖、學習曲線、滿意度等多維度展示。",
-            "dependencies": [
-              2,
-              3
-            ],
-            "details": "設計數據分析流程，支持常用功能識別、用戶路徑分析、異常行為檢測，並以圖表形式動態展示評估結果。",
-            "status": "pending",
-            "testStrategy": "通過真實數據回放和多場景測試，驗證可視化效果和數據準確性。"
+            "testStrategy": "與BigDipper接口文檔比對，確保一致性。"
           },
           {
             "id": 5,
-            "title": "知識管理與測試結果記錄歸檔",
-            "description": "由OpenMemory MCP負責，建立測試結果與知識管理系統，實現評估過程、數據、結論的結構化存儲與檢索。",
+            "title": "LLM提示詞模板設計與規範制定",
+            "description": "設計覆蓋各核心任務的LLM提示詞模板，並規範XML標籤結構化輸出格式。",
             "dependencies": [
               4
             ],
-            "details": "設計知識庫結構，支持多版本測試結果、用戶反饋、改進建議等內容的歸檔與查詢，便於後續優化和審計。",
+            "details": "產出多主題新聞稿適用的提示詞模板庫及XML輸出規範文檔。",
             "status": "pending",
-            "testStrategy": "通過查詢測試和數據一致性校驗，確保知識管理系統的完整性與可用性。"
+            "testStrategy": "對不同主題新聞稿進行提示詞覆蓋測試，驗證結構化輸出正確性。"
+          },
+          {
+            "id": 7,
+            "title": "LLM語義分析模組開發（單模型）",
+            "description": "基於設計的提示詞模板與API接口，實現LLM語義分析模組，支持單一供應商。",
+            "dependencies": [
+              5,
+              6
+            ],
+            "details": "完成初版LLM語義分析模組代碼，支持XML結構化輸出。",
+            "status": "pending",
+            "testStrategy": "針對多主題新聞稿進行語義分析準確性與結構化輸出測試。"
+          },
+          {
+            "id": 8,
+            "title": "多供應商LLM動態選擇與回退機制實現",
+            "description": "實現多LLM供應商API的動態選擇、健康檢查與自動回退機制，提升系統穩定性。",
+            "dependencies": [],
+            "details": "完成多模型調度與回退邏輯代碼，支持自動切換。",
+            "status": "pending",
+            "testStrategy": "模擬主動切換與故障回退場景，驗證穩定性與正確性。"
+          },
+          {
+            "id": 9,
+            "title": "BigDipper API初步對接與兼容性設計",
+            "description": "將LLM語義分析模組與BigDipper API對接，設計兼容現有流程的接口方案。",
+            "dependencies": [],
+            "details": "完成對接代碼與兼容性設計文檔，確保現有下游流程不受影響。",
+            "status": "pending",
+            "testStrategy": "與BigDipper端到端流程測試，驗證數據流與接口兼容性。"
+          },
+          {
+            "id": 10,
+            "title": "完全移除硬編碼關鍵詞與規則",
+            "description": "徹底移除現有系統中的所有硬編碼關鍵詞與語義規則，確保語義分析完全由LLM驅動。",
+            "dependencies": [
+              7,
+              9
+            ],
+            "details": "代碼層面清理與重構，無任何硬編碼規則殘留。",
+            "status": "pending",
+            "testStrategy": "靜態代碼掃描與人工審查，確保無硬編碼遺留。"
+          },
+          {
+            "id": 11,
+            "title": "多主題新聞稿適應性驗證",
+            "description": "驗證LLM語義分析模組對不同主題新聞稿的適應性與泛化能力。",
+            "dependencies": [
+              7,
+              10
+            ],
+            "details": "構建多主題新聞稿測試集，覆蓋技術、財經、娛樂等多領域。",
+            "status": "pending",
+            "testStrategy": "對每個主題進行語義分析準確率與結構化輸出一致性測試。"
+          },
+          {
+            "id": 12,
+            "title": "性能優化與異常處理機制設計",
+            "description": "針對LLM語義分析模組進行性能優化（如批量處理、異步調用）及異常處理設計。",
+            "dependencies": [
+              7,
+              8
+            ],
+            "details": "優化代碼結構，實現異步調用與錯誤重試機制。",
+            "status": "pending",
+            "testStrategy": "壓力測試與異常場景模擬，驗證性能與穩定性。"
+          },
+          {
+            "id": 13,
+            "title": "端到端流程集成測試",
+            "description": "對重構後的語義分析器進行端到端流程測試，覆蓋多供應商、多主題、BigDipper對接等場景。",
+            "dependencies": [
+              9,
+              11,
+              12
+            ],
+            "details": "設計全流程測試用例，覆蓋所有核心功能與異常場景。",
+            "status": "pending",
+            "testStrategy": "自動化測試腳本執行，人工複核測試結果。"
+          },
+          {
+            "id": 14,
+            "title": "技術文檔與運維手冊編寫",
+            "description": "編寫詳細的技術設計文檔、API說明、運維手冊，支持後續擴展與維護。",
+            "dependencies": [],
+            "details": "產出完整的文檔包，覆蓋架構設計、接口規範、運維操作等內容。",
+            "status": "pending",
+            "testStrategy": "由第三方工程師根據文檔進行部署與調用驗證。"
+          },
+          {
+            "id": 15,
+            "title": "最終交付與用戶驗收",
+            "description": "組織用戶驗收會，演示重構後系統功能，收集反饋並完成最終交付。",
+            "dependencies": [],
+            "details": "完成用戶驗收記錄，收集改進建議，形成最終交付報告。",
+            "status": "pending",
+            "testStrategy": "現場演示所有核心功能，根據用戶驗收標準逐項確認。"
+          },
+          {
+            "id": 16,
+            "title": "制定詳細重構實施計劃與時程",
+            "description": "基於已完成的架構分析、硬編碼依賴識別和LLM替換策略，制定具體的重構實施計劃，包含詳細時程安排、資源分配、優先級設定、風險管控和回滾策略。",
+            "details": "<info added on 2025-06-30T09:47:21.157Z>\n基於三階段LLM替換策略設計，制定詳細重構實施計劃：\n\n**詳細時程安排**\n- 第一階段（基礎重構）：4-6週\n  - 週1-2：硬編碼依賴點解耦（16個識別點）\n  - 週3-4：語義分析器架構重構\n  - 週5-6：基礎測試與驗證\n- 第二階段（LLM整合）：6-8週\n  - 週1-3：LLM API整合開發\n  - 週4-5：語義處理邏輯遷移\n  - 週6-8：性能優化與調試\n- 第三階段（全面部署）：3-4週\n  - 週1-2：生產環境部署\n  - 週3-4：監控調優與穩定化\n\n**資源分配計劃**\n- 人力資源：\n  - 核心開發團隊：3-4名資深工程師\n  - 測試團隊：2名QA工程師\n  - DevOps支援：1名運維工程師\n- 技術資源：\n  - 開發環境：獨立測試集群\n  - 預生產環境：鏡像生產配置\n- API成本預估：\n  - 開發測試階段：每月$500-800\n  - 生產環境：每月$2000-3000（基於使用量）\n\n**優先級矩陣**\n高優先級（高影響+高緊急）：\n- 核心語義分析邏輯解耦\n- 關鍵硬編碼依賴點處理\n- 回滾機制建立\n\n中優先級（高影響+低緊急）：\n- 性能監控系統\n- 錯誤處理機制優化\n- 文檔更新\n\n低優先級（低影響+低緊急）：\n- 介面美化\n- 非核心功能增強\n\n**風險管控策略**\n- 技術風險：\n  - LLM API不穩定 → 實施多供應商備援\n  - 性能下降 → 建立性能基準線和監控\n- 業務風險：\n  - 用戶體驗中斷 → 採用藍綠部署策略\n  - 數據一致性問題 → 實施嚴格的數據驗證\n\n**回滾預案**\n- 每階段完成後創建穩定版本快照\n- 建立自動化回滾腳本\n- 設定關鍵指標閾值觸發自動回滾\n- 維護完整的配置版本管理\n\n**驗收標準**\n第一階段：\n- 所有硬編碼依賴點成功解耦\n- 架構重構後系統穩定性測試通過\n- 性能指標不低於重構前95%\n\n第二階段：\n- LLM API整合功能完整性測試通過\n- 語義分析準確率達到預期指標\n- 響應時間符合SLA要求\n\n第三階段：\n- 生產環境穩定運行72小時無重大問題\n- 用戶驗收測試通過率≥95%\n- 系統監控指標全部正常\n</info added on 2025-06-30T09:47:21.157Z>\n<info added on 2025-06-30T09:50:16.981Z>\n**基於具體技術問題的詳細實施計劃細化**\n\n**第一階段執行細節（4-6週）**\n\n週1-2：緊急質量修復\n- 人物引言提取邏輯修復：解決所有人物被分配相同引言的嚴重bug\n- Regex模式邏輯重構：修正`if name in paragraph or any(word in paragraph for word in [\"他說\", \"表示\", \"指出\"])`的邏輯缺陷\n- 臨時LLM增強實施：保持現有接口不變，內部使用LLM進行人物-引言正確配對\n- 目標：人物引言匹配準確率達到90%以上\n\n週3-4：核心硬編碼字典LLM化\n- Tech_keywords字典替換：無人機、AI、競技、應用、技術等5大類別\n- Emotion_keywords字典替換：讚嘆、興奮、專業、創新、支持等5大情感類別  \n- Narrative_patterns字典替換：引言、現場、專業分析、未來展望等4大敘事模式\n- 動態關鍵詞生成提示模板設計與實施\n- 目標：完全移除硬編碼字典，LLM生成關鍵詞覆蓋率達95%以上\n\n週5-6：架構重構與基礎測試\n- NewsSemanticAnalyzer類架構重構：移除所有硬編碼初始化\n- LLM Provider抽象層實施：支援Claude、OpenAI、Gemini三大供應商\n- 結構化輸出驗證建立：確保XML格式一致性\n- 目標：架構測試通過，向後兼容性達100%\n\n**第二階段執行細節（6-8週）**\n\n週1-3：多LLM Provider整合\n- Claude API整合：採用Anthropic Claude Sonnet 4作為主力模型\n- OpenAI API整合：GPT-4o mini作為備援模型\n- Gemini API整合：利用現有Gemini MCP Server\n- 健康檢查與自動切換機制建立\n- 目標：3個Provider穩定調用，切換時間控制在2秒內\n\n週4-5：智能提示詞系統開發\n- 主題自適應提示詞：根據新聞主題動態調整分析重點\n- 結構化輸出模板：確保XML標籤結構一致性\n- 上下文增強：利用文章標題、來源等元數據提升分析準確性\n- 目標：不同主題新聞分析準確率達85%以上\n\n週6-8：性能優化與錯誤處理\n- 異步調用實現：支援批量文章處理能力\n- 重試機制：API失敗自動重試與降級處理\n- 快取策略：相似內容分析結果快取機制\n- 目標：響應時間控制在5秒內，成功率達98%以上\n\n**第三階段執行細節（3-4週）**\n\n週1-2：BigDipper整合與部署\n- MCP Server接口適配：確保與現有BigDipper API完全兼容\n- Gemini CLI整合：充分利用現有cli架構\n- 生產環境藍綠部署策略實施\n- 目標：所有現有工作流程無中斷運行\n\n週3-4：監控與穩定化\n- 性能監控儀表板建立：追蹤API調用次數、成功率、響應時間\n- 錯誤告警系統：異常情況自動通知機制\n- 用戶反饋收集：分析結果質量評估系統\n- 目標：系統穩定運行，用戶滿意度達90%以上\n\n**關鍵技術決策確認**\n1. 主力LLM：Claude Sonnet 4（優異的語義分析能力）\n2. 備援策略：GPT-4o mini + Gemini Pro（成本與性能最佳平衡）\n3. 輸出格式：保持現有XML結構，增強語義標籤豐富度\n4. 部署策略：藍綠部署，支援快速回滾能力\n5. 成本控制：智能快取實施，減少重複API調用\n\n**強化風險緩解措施**\n- API配額管理：設定每日調用上限防止超額\n- 自動回滾觸發：錯誤率超過5%或響應時間超過10秒\n- 階段性數據備份：每階段完成後進行完整備份\n- 智能監控閾值：設定多層級自動告警觸發條件\n</info added on 2025-06-30T09:50:16.981Z>\n<info added on 2025-06-30T09:52:32.724Z>\n**資源分配明細表**\n\n**第一階段資源需求（4-6週）**\n- 人力投入：\n  - Senior Backend Engineer (1人)：負責架構重構和核心邏輯修復\n  - LLM Integration Specialist (1人)：負責LLM API整合和提示詞設計\n  - QA Engineer (1人)：負責測試驗證和質量保證\n- 技術資源：\n  - 開發環境：1套完整BigDipper測試環境\n  - API調用成本：預估每週$100-150（主要用於開發測試）\n- 時間分配：總計240-360工時\n\n**第二階段資源需求（6-8週）**\n- 人力投入：\n  - Backend Engineer Team (2人)：並行開發多Provider整合\n  - Performance Engineer (1人)：專注性能優化和異步處理\n  - QA Engineer (1人)：持續測試和驗證\n- 技術資源：\n  - 預生產環境：完整鏡像生產配置\n  - API調用成本：預估每週$200-300（大量測試調用）\n- 時間分配：總計480-640工時\n\n**第三階段資源需求（3-4週）**\n- 人力投入：\n  - DevOps Engineer (1人)：生產部署和監控設置\n  - Support Engineer (1人)：用戶支援和問題解決\n  - Project Manager (1人)：協調驗收和交付\n- 技術資源：\n  - 生產環境：完整部署資源\n  - 監控工具：性能監控和告警系統\n- 時間分配：總計180-240工時\n\n**成本效益分析**\n- 開發成本：\n  - 人力成本：約$45,000-60,000（13-18週×$3,500/週平均）\n  - API成本：約$2,500-4,000（開發+測試+初期生產）\n  - 基礎設施：約$1,500-2,000（環境維護）\n- 預期效益：\n  - 維護成本降低：每年節省約$15,000（減少硬編碼維護）\n  - 適應性提升：支援新主題新聞無需程式修改\n  - 分析準確率提升：預估從60%提升到85%+\n\n**執行檢查清單**\n\n**Phase 1 Checklist（第一階段）**\n□ 備份現有語義分析器完整代碼\n□ 建立專用開發分支和測試環境\n□ 修復人物引言匹配邏輯bug\n□ 重構regex模式匹配邏輯\n□ 移除tech_keywords硬編碼字典\n□ 移除emotion_keywords硬編碼字典\n□ 移除narrative_patterns硬編碼字典\n□ 實施LLM Provider抽象層\n□ 建立XML輸出格式驗證\n□ 執行向後兼容性測試\n□ 建立回滾腳本和程序\n\n**Phase 2 Checklist（第二階段）**\n□ Claude Sonnet 4 API整合和測試\n□ OpenAI GPT-4o mini備援API整合\n□ Gemini Pro MCP Server利用\n□ 健康檢查機制實施\n□ 自動切換邏輯開發\n□ 主題自適應提示詞設計\n□ 結構化輸出模板建立\n□ 異步調用機制實施\n□ 重試和降級機制開發\n□ 快取策略實施\n□ 性能基準測試執行\n□ 多主題新聞測試驗證\n\n**Phase 3 Checklist（第三階段）**\n□ BigDipper API完整兼容性測試\n□ Gemini CLI整合驗證\n□ 藍綠部署腳本準備\n□ 生產環境部署執行\n□ 性能監控儀表板上線\n□ 錯誤告警系統啟用\n□ 用戶反饋收集機制建立\n□ 72小時穩定運行監控\n□ 用戶驗收測試執行\n□ 最終交付文檔完成\n\n**里程碑與交付物**\n- 里程碑1（週6）：硬編碼依賴完全移除，基礎LLM化完成\n- 里程碑2（週12）：多Provider整合完成，性能優化達標\n- 里程碑3（週16）：生產部署成功，用戶驗收通過\n\n**品質保證措施**\n- 代碼審查：每個PR必須經過2人審查\n- 自動化測試：覆蓋率達85%以上\n- 性能測試：每週執行基準測試\n- 安全掃描：定期執行漏洞掃描\n- 文檔更新：同步更新技術文檔\n\n此詳細實施計劃現已完成，提供了從技術架構到資源分配的全方位指導，確保LLM驅動語義分析器重構項目能夠順利執行並達到預期目標。\n</info added on 2025-06-30T09:52:32.724Z>",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 27
           }
         ]
       },
       {
-        "id": 9,
-        "title": "開發數據分析和可視化模塊",
-        "description": "實現處理測試數據並生成視覺化圖表和報告的模塊",
-        "details": "設計並實現數據分析和可視化系統，包括：\n\n1. 數據處理管道：清洗、聚合和分析測試數據\n2. 統計分析工具：計算關鍵指標和比較統計\n3. 可視化生成器：自動生成圖表和視覺化展示\n4. 報告生成器：生成結構化評估報告\n\n技術選擇：\n- pandas 2.1.0+和NumPy 1.25.2+用於數據處理\n- Plotly 5.17.0+/Bokeh 3.2.2+用於交互式可視化\n- Jupyter Lab 4.0.5+用於探索性分析\n- ReportLab/WeasyPrint用於PDF報告生成\n\n實現自動化的數據處理流程，支持增量數據分析和歷史比較。",
-        "testStrategy": "1. 單元測試：驗證數據處理函數的正確性\n2. 集成測試：確保完整數據流程的正確性\n3. 視覺檢查：人工審核生成的可視化和報告\n4. 性能測試：評估處理大量數據的能力",
+        "id": 28,
+        "title": "制定Claude Code自動開發今日優先項目計劃",
+        "description": "基於現有任務狀態，制定今日Claude Code自動開發的優先項目清單，包含即時可開始項目、核心架構項目、快速收益項目和技術債務償還，並提供具體執行順序、時間預估和成功驗收標準。",
+        "details": "1. 優先項目分析與排序：\n   - 分析所有pending任務，特別關注Task 14 (JSON解析器開發)、Task 17 (新聞文章語義分析模組)和Task 27.1 (現有語義分析器架構梳理)\n   - 根據依賴關係、優先級和技術影響對任務進行分類和排序\n   - 考慮任務間的協同效應，識別能夠並行執行的任務組合\n\n2. 今日執行計劃制定：\n   a) 即時可開始項目（無依賴）：\n      - Task 14: JSON解析器開發（預估3小時）\n      - Task 17: 新聞文章語義分析模組（預估4小時）\n      - 執行順序：先完成Task 14，為其他模組提供基礎支持\n\n   b) 核心架構項目：\n      - Task 27.1: 現有語義分析器架構梳理（預估2.5小時）\n      - 執行時間：完成Task 17後立即開始，作為語義分析重構的第一步\n\n   c) 快速收益項目：\n      - Task 26: 建立智能JSON提取函數（預估2小時，依賴Task 23，但可考慮提前開始部分工作）\n      - 執行時間：在Task 14完成後開始初步設計工作\n\n   d) 技術債務償還：\n      - 識別並記錄語義分析器中的硬編碼問題（預估1小時，作為Task 27.1的一部分）\n\n3. 資源分配與時間規劃：\n   - 上午（9:00-12:00）：專注於Task 14 JSON解析器開發\n   - 午休後（13:00-17:00）：完成Task 17新聞文章語義分析模組\n   - 晚間（17:00-19:30）：進行Task 27.1語義分析器架構梳理和Task 26初步設計\n\n4. 協作與溝通計劃：\n   - 每個任務完成後進行15分鐘的進度更新\n   - 遇到阻礙時及時調整計劃，確保核心任務優先完成\n   - 記錄所有技術決策和架構發現，為後續任務做準備\n\n5. 成果交付標準：\n   - 每個任務必須有可運行的代碼和單元測試\n   - 必須包含詳細文檔，說明實現方法和使用示例\n   - 所有代碼必須符合項目編碼規範並通過代碼審查",
+        "testStrategy": "1. 計劃執行驗證：\n   - 使用任務追蹤系統記錄每個任務的開始和完成時間\n   - 每個任務結束時進行自我評估，確認是否達到預期目標\n   - 每日結束時進行計劃完成率評估，計算實際完成任務與計劃任務的比率\n\n2. 代碼質量驗證：\n   - 對每個完成的任務運行自動化測試，確保代碼質量\n   - 進行代碼覆蓋率分析，確保測試覆蓋關鍵功能\n   - 執行靜態代碼分析，檢查潛在問題和技術債務\n\n3. 功能整合測試：\n   - 驗證Task 14 (JSON解析器)能夠正確解析所有測試用例\n   - 確認Task 17 (語義分析模組)能夠準確分析不同類型的新聞文章\n   - 測試Task 27.1產出的架構文檔是否完整且可執行\n\n4. 進度與效率評估：\n   - 比較任務實際完成時間與預估時間的差異\n   - 分析任務間的切換成本和協同效應\n   - 識別流程中的瓶頸和優化機會\n\n5. 成果驗收標準：\n   - JSON解析器能夠處理至少95%的測試用例\n   - 語義分析模組準確率達到85%以上\n   - 語義分析器架構梳理文檔必須包含完整的現有架構圖、依賴關係和重構建議\n   - 所有代碼必須有完整的單元測試和文檔",
+        "status": "pending",
+        "dependencies": [
+          14,
+          17,
+          26,
+          27
+        ],
         "priority": "medium",
-        "dependencies": [
-          1,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8
-        ],
-        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "設計與實現數據處理管道",
-            "description": "構建自動化數據清洗、聚合與預處理流程，支持增量數據導入與歷史數據比較，確保數據質量與一致性。",
+            "title": "設計JSON解析器核心架構",
+            "description": "設計Task 14 JSON解析器的核心架構，定義接口規範和數據結構，為後續實現奠定基礎。",
             "dependencies": [],
-            "details": "利用Pandas和NumPy設計數據處理模組，實現數據的去重、缺失值處理、類型轉換、分組聚合等功能，並支持批量與增量數據流的高效處理。",
-            "status": "pending",
-            "testStrategy": "通過單元測試和集成測試驗證數據處理流程的正確性，對比原始數據與處理後數據的一致性和完整性。"
+            "details": "分析JSON解析需求，設計Parser類結構，定義parse()、validate()、extract()等核心方法接口，設計錯誤處理機制，創建基礎數據模型類。預估時間：1小時。交付物：架構設計文檔、接口定義代碼框架。",
+            "status": "done",
+            "testStrategy": "創建接口測試用例，驗證架構設計的完整性和可擴展性"
           },
           {
             "id": 2,
-            "title": "開發統計分析與關鍵指標計算工具",
-            "description": "實現關鍵統計指標（如均值、中位數、標準差、分布等）計算，並支持多模型、多批次測試結果的比較分析。",
+            "title": "實現JSON解析器核心功能",
+            "description": "基於設計的架構實現JSON解析器的核心解析功能，包括基本解析、驗證和錯誤處理。",
             "dependencies": [
               1
             ],
-            "details": "基於NumPy和Pandas開發統計分析模組，支持自定義指標計算、分組統計、歷史數據對比，並為深度分析和多模型協作測試提供數據支持。",
+            "details": "實現JSONParser類的核心方法，包括字符串解析、數據類型識別、嵌套結構處理、語法錯誤檢測。添加詳細的錯誤信息和異常處理。預估時間：1.5小時。交付物：完整的JSONParser類實現、基礎測試用例。",
             "status": "pending",
-            "testStrategy": "設計測試用例覆蓋各類統計指標計算場景，驗證結果準確性，並與業界標準數據進行對比。"
+            "testStrategy": "單元測試覆蓋各種JSON格式，包括正常格式、錯誤格式、邊界情況測試"
           },
           {
             "id": 3,
-            "title": "構建自動化可視化生成器",
-            "description": "開發自動生成交互式圖表（如折線圖、柱狀圖、熱力圖等）的模組，支持多維度數據的動態展示與探索。",
+            "title": "完善JSON解析器並集成測試",
+            "description": "完善JSON解析器功能，添加高級特性，進行全面測試和文檔編寫，完成Task 14。",
             "dependencies": [
               2
             ],
-            "details": "利用Plotly或Bokeh實現可視化組件，支持自定義圖表樣式、交互操作、數據過濾與切片，並集成於Jupyter Lab進行探索性分析。",
+            "details": "添加高級解析特性（如註釋處理、格式化輸出），優化性能，編寫完整文檔和使用示例，進行集成測試。預估時間：0.5小時。交付物：完整的JSON解析器模組、測試套件、使用文檔。",
             "status": "pending",
-            "testStrategy": "通過自動化測試驗證圖表生成的正確性與交互性，並進行用戶體驗測試以確保可視化效果達標。"
+            "testStrategy": "集成測試驗證與其他模組的兼容性，性能測試確保處理大型JSON文件的效率"
           },
           {
             "id": 4,
-            "title": "開發結構化報告生成器",
-            "description": "實現自動化生成結構化PDF或HTML報告的模組，整合數據分析結果與可視化圖表，支持多格式導出。",
+            "title": "設計新聞文章語義分析模組架構",
+            "description": "設計Task 17新聞文章語義分析模組的整體架構，定義核心組件和數據流。",
             "dependencies": [
               3
             ],
-            "details": "基於ReportLab或WeasyPrint設計報告模板，實現數據、圖表與文字說明的自動組裝，支持批量與定時報告生成。",
+            "details": "分析新聞文章語義分析需求，設計ArticleAnalyzer類結構，定義關鍵詞提取、情感分析、主題分類等功能模組，設計數據流和接口規範。預估時間：1小時。交付物：模組架構設計、接口定義、數據模型。",
             "status": "pending",
-            "testStrategy": "通過生成多份測試報告，檢查內容完整性、格式一致性與導出兼容性，並進行回歸測試。"
+            "testStrategy": "架構驗證測試，確保各組件間的接口設計合理且可測試"
           },
           {
             "id": 5,
-            "title": "建立知識管理與測試結果記錄系統",
-            "description": "設計並實現測試結果、分析過程與知識點的自動記錄與管理模組，支持知識檢索與歷史查詢。",
+            "title": "實現文章內容預處理功能",
+            "description": "實現新聞文章的預處理功能，包括文本清理、分詞、去停用詞等基礎處理。",
             "dependencies": [
               4
             ],
-            "details": "構建結構化數據庫或知識庫，記錄每次測試的數據、分析結論、可視化結果與報告，並支持多維度查詢與版本管理。",
+            "details": "實現文本預處理管道，包括HTML標籤清理、特殊字符處理、中英文分詞、停用詞過濾、詞性標註。預估時間：1.5小時。交付物：TextPreprocessor類、預處理工具函數、測試用例。",
             "status": "pending",
-            "testStrategy": "驗證知識庫的數據完整性、查詢效率與版本追蹤功能，並進行權限與安全性測試。"
-          }
-        ]
-      },
-      {
-        "id": 10,
-        "title": "實現六邊形架構分析模塊",
-        "description": "開發分析六邊形智能開發工具架構優勢與限制的評估模塊",
-        "details": "設計並實現架構分析系統，包括：\n\n1. 架構優勢識別：量化六邊形架構帶來的具體優勢\n2. 限制因素分析：識別架構中的瓶頸和限制\n3. 擴展性評估：分析架構的可擴展性和適應性\n4. 成本效益分析：評估實施和維護成本與收益\n\n技術選擇：\n- SWOT分析框架用於系統評估\n- 系統動力學模型用於複雜交互分析\n- 決策矩陣用於多因素評估\n- 成本模型用於ROI計算\n\n實現基於實證數據的分析方法，結合定量和定性評估手段。",
-        "testStrategy": "1. 案例研究：分析實際使用場景中的架構表現\n2. 專家評審：邀請架構專家審核分析結果\n3. 比較分析：與其他架構模式進行對比\n4. 敏感性分析：測試不同條件下的架構表現",
-        "priority": "low",
-        "dependencies": [
-          3,
-          4,
-          6,
-          7,
-          9
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "收集與整理六邊形架構的最新評測標準與業界基準",
-            "description": "調查並彙整六邊形架構在業界的最新評測標準、基準案例與主流實踐，為後續分析提供依據。",
-            "dependencies": [],
-            "details": "由 Perplexity MCP 負責，通過搜索和彙整公開資料、白皮書、業界報告，建立評估指標清單。",
-            "status": "pending",
-            "testStrategy": "審查彙整資料的完整性與時效性，並與業界專家進行交叉驗證。"
+            "testStrategy": "使用多種格式的新聞文章測試預處理效果，驗證中英文處理的準確性"
           },
           {
-            "id": 2,
-            "title": "研究六邊形架構技術文檔與最佳實踐",
-            "description": "查詢並分析六邊形架構的技術文檔、設計模式與最佳實踐，梳理其核心理念與應用場景。",
+            "id": 6,
+            "title": "實現語義分析核心算法",
+            "description": "實現新聞文章語義分析的核心算法，包括關鍵詞提取、情感分析和主題識別。",
             "dependencies": [
-              1
+              5
             ],
-            "details": "由 Context7 MCP 負責，聚焦於官方文檔、開發者社區和知名企業案例，形成技術知識庫。",
+            "details": "實現TF-IDF關鍵詞提取、基於詞典的情感分析、LDA主題模型或規則基礎的主題分類。整合預處理結果，提供統一的分析接口。預估時間：2小時。交付物：SemanticAnalyzer類、分析算法實現、結果數據結構。",
             "status": "pending",
-            "testStrategy": "對比多個來源的技術細節，確保知識庫內容準確且覆蓋主流實踐。"
+            "testStrategy": "使用標準新聞數據集測試分析準確性，對比不同算法的效果"
           },
           {
-            "id": 3,
-            "title": "設計六邊形架構優勢與限制的多模型分析方案",
-            "description": "基於SWOT、系統動力學、決策矩陣等方法，設計可量化六邊形架構優勢與限制的分析模型。",
+            "id": 7,
+            "title": "完成語義分析模組集成和測試",
+            "description": "完成新聞文章語義分析模組的集成，進行全面測試和優化，完成Task 17。",
             "dependencies": [
-              2
+              6
             ],
-            "details": "由 Zen MCP 負責，結合定量與定性指標，設計多維度評估框架，並規劃協作測試流程。",
+            "details": "整合所有語義分析組件，優化性能，添加批量處理功能，編寫完整文檔和使用示例，進行端到端測試。預估時間：0.5小時。交付物：完整的語義分析模組、測試套件、API文檔。",
             "status": "pending",
-            "testStrategy": "通過多案例測試分析模型的適用性與準確性，並根據反饋優化模型設計。"
+            "testStrategy": "端到端測試驗證完整分析流程，性能測試確保處理大量文章的效率"
           },
           {
-            "id": 4,
-            "title": "實現分析模塊核心功能與系統結構",
-            "description": "根據分析模型，開發架構優勢識別、限制因素分析、擴展性評估與成本效益分析等核心模塊。",
+            "id": 8,
+            "title": "執行現有語義分析器架構梳理",
+            "description": "執行Task 27.1，梳理現有語義分析器架構，識別技術債務和改進機會，為後續重構做準備。",
             "dependencies": [
-              3
+              7
             ],
-            "details": "由 Serena MCP 負責，負責模塊編碼實現、接口設計與項目結構管理，確保模塊可擴展與易維護。",
+            "details": "分析現有語義分析器代碼結構，識別硬編碼問題、性能瓶頸、可維護性問題，記錄架構債務，提出重構建議和優先級排序。預估時間：2.5小時。交付物：架構分析報告、技術債務清單、重構計劃建議。",
             "status": "pending",
-            "testStrategy": "單元測試與集成測試覆蓋所有核心功能，確保模塊穩定性與準確性。"
-          },
-          {
-            "id": 5,
-            "title": "測試、知識管理與分析結果記錄",
-            "description": "組織多場景測試，記錄分析結果，並建立知識管理機制以支持持續優化。",
-            "dependencies": [
-              4
-            ],
-            "details": "由 OpenMemory MCP 負責，負責測試數據記錄、結果歸檔與知識庫維護，支持後續改進與知識傳承。",
-            "status": "pending",
-            "testStrategy": "驗證測試記錄的完整性與可追溯性，並定期審查知識庫內容的更新與準確性。"
-          }
-        ]
-      },
-      {
-        "id": 11,
-        "title": "開發優化建議生成模塊",
-        "description": "實現基於測試結果自動生成優化建議和未來發展方向的模塊",
-        "details": "設計並實現優化建議系統，包括：\n\n1. 問題識別算法：自動識別性能和功能問題\n2. 優化策略庫：常見問題的解決方案集合\n3. 優先級評估：對優化建議進行重要性排序\n4. 發展路線圖生成：長期改進計劃建議\n\n技術選擇：\n- 機器學習模型用於模式識別（scikit-learn 1.3.1+）\n- 知識圖譜用於解決方案映射\n- 決策支持系統框架\n- 項目管理工具集成（如JIRA API）\n\n實現基於數據驅動的建議生成機制，結合專家規則和最佳實踐。",
-        "testStrategy": "1. 準確性驗證：評估生成建議的相關性和可行性\n2. 專家審核：由領域專家審核生成的建議\n3. 歷史驗證：使用歷史案例驗證建議的有效性\n4. 用戶反饋：收集實施建議後的效果反饋",
-        "priority": "low",
-        "dependencies": [
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "自動化問題識別與測試數據分析",
-            "description": "設計並實現基於機器學習的問題識別算法，對測試結果進行深度分析，自動檢測性能與功能瓶頸。",
-            "dependencies": [],
-            "details": "由Zen MCP負責，結合多模型協作測試，利用scikit-learn等工具對測試數據進行模式識別，輸出問題清單與關鍵指標。",
-            "status": "pending",
-            "testStrategy": "通過歷史測試數據回放與人工標註對比，驗證問題識別準確率與覆蓋率。"
-          },
-          {
-            "id": 2,
-            "title": "優化策略庫構建與知識圖譜映射",
-            "description": "建立常見問題與解決方案的知識庫，並通過知識圖譜實現問題到優化策略的自動映射。",
-            "dependencies": [
-              1
-            ],
-            "details": "由Context7 MCP負責，查詢技術文檔與最佳實踐，結合專家規則，構建知識圖譜並維護策略庫。",
-            "status": "pending",
-            "testStrategy": "隨機抽取問題測試知識圖譜映射準確性，並與專家人工推薦結果對比。"
-          },
-          {
-            "id": 3,
-            "title": "優化建議生成與優先級評估",
-            "description": "根據識別的問題和策略庫，生成具體優化建議，並結合業界基準和項目目標進行重要性排序。",
-            "dependencies": [
-              2
-            ],
-            "details": "由Perplexity MCP負責，搜索最新評測標準與業界基準，並結合決策支持系統進行優先級評估。",
-            "status": "pending",
-            "testStrategy": "對比自動排序結果與專家手動排序，評估一致性和合理性。"
-          },
-          {
-            "id": 4,
-            "title": "發展路線圖自動生成與項目集成",
-            "description": "根據優化建議和優先級，自動生成長期發展路線圖，並集成至項目管理工具（如JIRA）。",
-            "dependencies": [
-              3
-            ],
-            "details": "由Serena MCP負責，實現路線圖生成邏輯，並通過JIRA API自動創建和更新相關任務。",
-            "status": "pending",
-            "testStrategy": "檢查生成的路線圖是否覆蓋所有優化建議，並驗證與JIRA的集成效果。"
-          },
-          {
-            "id": 5,
-            "title": "測試結果與知識管理自動化",
-            "description": "記錄每次優化建議生成的測試結果與知識點，實現知識管理與持續優化閉環。",
-            "dependencies": [
-              4
-            ],
-            "details": "由OpenMemory MCP負責，將測試結果、優化建議及其效果自動歸檔，支持後續知識復用與模型優化。",
-            "status": "pending",
-            "testStrategy": "定期抽查知識庫內容完整性，並驗證知識點在後續優化中的調用情況。"
-          }
-        ]
-      },
-      {
-        "id": 12,
-        "title": "生成綜合評估報告",
-        "description": "整合所有測試結果，生成完整的六邊形智能開發工具評估報告",
-        "details": "設計並實現綜合報告生成系統，包括：\n\n1. 數據整合：匯總所有測試模塊的結果\n2. 報告結構設計：清晰、全面的報告框架\n3. 執行摘要生成：關鍵發現和建議摘要\n4. 詳細分析章節：各方面的深入分析\n\n報告內容應包括：\n- 各MCP Server個別性能評估\n- 六邊形架構協同工作分析\n- 與原生Claude Code的詳細對比\n- 性能測試數據和視覺化圖表\n- 最佳實踐指南和使用建議\n- 優化建議和未來發展藍圖\n\n技術選擇：\n- Markdown/LaTeX用於報告撰寫\n- Pandoc 3.1.9+用於格式轉換\n- GitBook/MkDocs用於在線文檔生成\n- Draw.io/Mermaid用於圖表生成\n\n實現自動化報告生成流程，支持不同格式輸出（PDF、HTML、DOCX等）。",
-        "testStrategy": "1. 內容完整性檢查：確保報告涵蓋所有必要內容\n2. 格式和樣式檢查：確保報告格式一致且專業\n3. 專家審核：由領域專家審核報告內容\n4. 用戶反饋：收集報告讀者的理解度和有用性反饋",
-        "priority": "medium",
-        "dependencies": [
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "整合測試數據與知識管理",
-            "description": "收集並整合所有測試模塊的結果，包括各MCP Server的個別性能數據、協同工作情境下的測試結果，以及相關知識與最佳實踐資料。",
-            "dependencies": [],
-            "details": "由OpenMemory MCP負責記錄與彙總測試結果，Context7 MCP協助查詢技術文檔與最佳實踐，確保數據完整性與知識可追溯。",
-            "status": "pending",
-            "testStrategy": "核對所有測試模塊數據是否齊全，並驗證知識管理庫的完整性與可檢索性。"
-          },
-          {
-            "id": 2,
-            "title": "設計報告結構與內容框架",
-            "description": "設計清晰、全面的報告結構，涵蓋性能評估、架構協同分析、對比分析、數據視覺化、最佳實踐與優化建議等章節。",
-            "dependencies": [
-              1
-            ],
-            "details": "由Serena MCP負責編碼實現與項目結構管理，根據整合數據設計Markdown/LaTeX報告模板，並規劃各章節內容。",
-            "status": "pending",
-            "testStrategy": "審查報告結構是否覆蓋所有需求點，並進行模板渲染測試。"
-          },
-          {
-            "id": 3,
-            "title": "生成執行摘要與關鍵建議",
-            "description": "基於整合數據與分析，生成報告的執行摘要，突出關鍵發現、性能亮點與改進建議。",
-            "dependencies": [
-              2
-            ],
-            "details": "由Zen MCP負責深度分析與多模型協作測試，Perplexity MCP協助搜索最新評測標準與業界基準，確保摘要內容具備前瞻性與參考價值。",
-            "status": "pending",
-            "testStrategy": "由TaskMaster MCP組織專家審查摘要內容的準確性與可讀性。"
-          },
-          {
-            "id": 4,
-            "title": "撰寫詳細分析與數據視覺化章節",
-            "description": "針對各MCP Server性能、六邊形架構協同、與原生Claude Code對比等重點，撰寫深入分析並生成視覺化圖表。",
-            "dependencies": [
-              3
-            ],
-            "details": "Zen MCP負責分析撰寫，Serena MCP協助圖表生成（Draw.io/Mermaid），Context7 MCP補充技術細節與最佳實踐。",
-            "status": "pending",
-            "testStrategy": "驗證分析內容的邏輯性與圖表的準確性，並進行交叉審查。"
-          },
-          {
-            "id": 5,
-            "title": "實現自動化報告生成與多格式輸出",
-            "description": "開發自動化流程，將報告內容轉換為PDF、HTML、DOCX等多種格式，並支持在線文檔發布。",
-            "dependencies": [
-              4
-            ],
-            "details": "Serena MCP負責自動化腳本與格式轉換（Pandoc 3.1.9+），TaskMaster MCP負責流程規劃與進度追蹤，GitBook/MkDocs用於在線文檔生成。",
-            "status": "pending",
-            "testStrategy": "測試各格式輸出效果，驗證自動化流程的穩定性與兼容性。"
+            "testStrategy": "通過代碼審查和性能分析驗證識別的問題，確保重構建議的可行性"
           }
         ]
       }
     ],
     "metadata": {
       "created": "2025-06-23T09:34:02.183Z",
-      "updated": "2025-06-23T09:34:02.183Z",
+      "updated": "2025-06-30T09:53:39.325Z",
       "description": "Tasks for master context"
     }
   }
